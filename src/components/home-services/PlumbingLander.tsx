@@ -1,0 +1,371 @@
+/**
+ * Spec-Compliant Plumbing Landing Page
+ * Following HOME_SERVICES_LANDING_PAGE_SPEC.md
+ */
+import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useToast } from "@/hooks/use-toast";
+import { Droplets } from 'lucide-react';
+import {
+  AnimatedCard,
+  ProgressBar,
+  OptionButton,
+  StepHeader,
+  StepFooter,
+  HomeOwnerStep,
+  AddressStep,
+  ContactInfoStep,
+  SuccessScreen,
+  SocialProof,
+  ComplianceFooter,
+  FormAnswers,
+  OptionItem
+} from './SharedFormComponents';
+import { decodeLeadData, hasContactInfo, hasAddressInfo, LeadData } from '@/utils/leadDataHandoff';
+import { submitHomeServicesLead } from '@/services/homeServicesApi';
+
+// ============================================================================
+// CONSTANTS
+// ============================================================================
+
+const TOTAL_STEPS = 4;
+
+// API spec service values: Plumbing Repair, Plumbing Install, Drain Cleaning, Water Heater Repair, etc.
+const serviceOptions: OptionItem[] = [
+  { label: 'Plumbing Repair', value: 'Plumbing Repair' },
+  { label: 'Plumbing Install', value: 'Plumbing Install' },
+  { label: 'Drain Cleaning', value: 'Drain Cleaning' },
+  { label: 'Water Heater Repair', value: 'Water Heater Repair' },
+  { label: 'Water Heater Replacement', value: 'Water Heater Replacement' },
+  { label: 'Pipe Repair', value: 'Pipe Repair' },
+  { label: 'Emergency Plumbing', value: 'Emergency Plumbing' }
+];
+
+// ============================================================================
+// STEP COMPONENTS
+// ============================================================================
+
+// Step 1: Service Type
+const Step1 = ({ answers, handleAnswer, onNext }: { answers: FormAnswers; handleAnswer: (field: string, value: any) => void; onNext: () => void }) => (
+  <AnimatedCard>
+    <StepHeader
+      icon={<Droplets className="h-8 w-8 text-white" />}
+      iconColor="from-blue-500 to-cyan-600"
+      title="What Plumbing Service Do You Need?"
+      subtitle="Select the service that best fits your needs"
+    />
+
+    <div className="space-y-2 mb-6">
+      {serviceOptions.map((option) => (
+        <OptionButton
+          key={option.value}
+          option={option}
+          isSelected={answers.service === option.value}
+          onClick={() => {
+            handleAnswer('service', option.value);
+            onNext();
+          }}
+        />
+      ))}
+    </div>
+
+    <StepFooter />
+  </AnimatedCard>
+);
+
+// ============================================================================
+// MAIN COMPONENT
+// ============================================================================
+
+export default function PlumbingLander() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { toast } = useToast();
+
+  const [currentStep, setCurrentStep] = useState(1);
+  const [answers, setAnswers] = useState<FormAnswers>({});
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [prefilledData, setPrefilledData] = useState<LeadData | null>(null);
+  const [queryParams, setQueryParams] = useState<{ [key: string]: string }>({});
+  const [actualTotalSteps, setActualTotalSteps] = useState(TOTAL_STEPS);
+  const [detectedLeadId, setDetectedLeadId] = useState<string>('');
+  const [detectedTrustedFormCert, setDetectedTrustedFormCert] = useState<string>('');
+
+  // Monitor Jornaya LeadID and TrustedForm token population
+  useEffect(() => {
+    const monitorTokens = () => {
+      const leadIdElement = document.getElementById('leadid_token') as HTMLInputElement;
+      if (leadIdElement && leadIdElement.value) setDetectedLeadId(leadIdElement.value);
+      const tfElement = document.getElementById('xxTrustedFormCertUrl') as HTMLInputElement;
+      if (tfElement && tfElement.value) setDetectedTrustedFormCert(tfElement.value);
+    };
+    const interval = setInterval(monitorTokens, 1000);
+    monitorTokens();
+    setTimeout(monitorTokens, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Helper function to get Jornaya LeadID token
+  const getLeadIdToken = (): string => {
+    if (detectedLeadId) return detectedLeadId;
+    const leadidTokenElement = document.getElementById('leadid_token') as HTMLInputElement;
+    if (leadidTokenElement?.value) return leadidTokenElement.value;
+    const allLeadIdInputs = document.querySelectorAll('input[name*="leadid"], input[name*="universal_leadid"], input[id*="leadid"], input[name*="LeadId"], input[id*="LeadId"]');
+    for (const input of allLeadIdInputs) {
+      const inputElement = input as HTMLInputElement;
+      if (inputElement.value?.trim()) return inputElement.value.trim();
+    }
+    const allInputs = document.querySelectorAll('input[type="hidden"]');
+    for (const input of allInputs) {
+      const inputElement = input as HTMLInputElement;
+      const value = inputElement.value?.trim();
+      if (value && /^[A-F0-9]{8}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{12}$/i.test(value)) return value;
+    }
+    return '';
+  };
+
+  // Helper function to get TrustedForm certificate URL
+  const getTrustedFormCert = (): string => {
+    if (detectedTrustedFormCert) return detectedTrustedFormCert;
+    const tfElement = document.getElementById('xxTrustedFormCertUrl') as HTMLInputElement;
+    return tfElement?.value || '';
+  };
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const allParams: { [key: string]: string } = {};
+
+    params.forEach((value, key) => {
+      if (key !== 'step' && key !== 'ld') {
+        allParams[key] = value;
+      }
+    });
+
+    setQueryParams(allParams);
+
+    const leadData = decodeLeadData(params);
+    if (leadData) {
+      setPrefilledData(leadData);
+      if (leadData.first_name) setAnswers(prev => ({ ...prev, first_name: leadData.first_name }));
+      if (leadData.last_name) setAnswers(prev => ({ ...prev, last_name: leadData.last_name }));
+      if (leadData.phone_number) setAnswers(prev => ({ ...prev, phone_number: leadData.phone_number }));
+      if (leadData.email) setAnswers(prev => ({ ...prev, email: leadData.email }));
+      if (leadData.property_address) setAnswers(prev => ({ ...prev, property_address: leadData.property_address }));
+      if (leadData.city) setAnswers(prev => ({ ...prev, city: leadData.city }));
+      if (leadData.state) setAnswers(prev => ({ ...prev, state: leadData.state }));
+      if (leadData.zip_code) setAnswers(prev => ({ ...prev, zip_code: leadData.zip_code }));
+      if (leadData.home_owner) setAnswers(prev => ({ ...prev, home_owner: leadData.home_owner }));
+
+      let stepsToSkip = 0;
+      if (hasAddressInfo(leadData)) stepsToSkip++;
+      if (hasContactInfo(leadData)) stepsToSkip++;
+      setActualTotalSteps(TOTAL_STEPS - stepsToSkip);
+    }
+  }, [location.search]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const stepParam = params.get('step');
+    if (stepParam) {
+      const stepNumber = parseInt(stepParam, 10);
+      if (stepNumber >= 1 && stepNumber <= TOTAL_STEPS) {
+        setCurrentStep(stepNumber);
+      }
+    }
+  }, [location.search]);
+
+  const updateStep = useCallback((newStep: number) => {
+    setCurrentStep(newStep);
+    const params = new URLSearchParams(location.search);
+    params.set('step', newStep.toString());
+    navigate(`${location.pathname}?${params.toString()}`, { replace: false });
+  }, [location.search, navigate, location.pathname]);
+
+  const handleAnswer = useCallback((field: string, value: any) => {
+    setAnswers(prev => ({ ...prev, [field]: value }));
+    if (field === 'step') {
+      updateStep(value);
+    }
+  }, [updateStep]);
+
+  const handleSubmit = async () => {
+    setIsLoading(true);
+    const cleanedPhone = answers.phone_number?.replace(/\D/g, '') || '';
+    const leadidToken = getLeadIdToken();
+    const trustedFormCert = getTrustedFormCert();
+
+    const payload = {
+      // Contact info
+      first_name: answers.first_name || '',
+      last_name: answers.last_name || '',
+      phone: cleanedPhone,
+      email: answers.email || '',
+      // Address (required for POST)
+      address: answers.property_address || '',
+      city: answers.city || answers.manual_city || '',
+      state: answers.state || answers.manual_state || '',
+      zip_code: answers.zip_code || answers.manual_zip || '',
+      // Service-specific fields (backend extracts into service_data)
+      service: answers.service,
+      home_owner: answers.home_owner || 'Yes',
+      // Compliance fields
+      landing_page_url: window.location.href,
+      user_agent: navigator.userAgent,
+      tcpa_text: 'By clicking the button, I agree to receive calls and texts at the number provided about my project. I understand that my consent is not required to make a purchase.',
+      jornaya_leadid: leadidToken,  // Jornaya LeadID token
+      trustedform_cert_url: trustedFormCert,  // TrustedForm certificate URL
+      // Metadata
+      query_parameters: queryParams,
+      original_lead_id: prefilledData?.lead_id
+    };
+
+    try {
+      const result = await submitHomeServicesLead(payload, 'plumbing');
+
+      if (result.success) {
+        setIsSubmitted(true);
+      } else {
+        toast({
+          title: "Error",
+          description: result.error || "Failed to submit your request. Please try again.",
+          variant: "destructive",
+          duration: 5000,
+        });
+      }
+    } catch (error) {
+      console.error('Error submitting plumbing lead:', error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+        duration: 5000,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const renderCurrentStep = () => {
+    switch (currentStep) {
+      case 1:
+        // First check home_owner if pre-filled, skip to service question
+        if (prefilledData?.home_owner) {
+          return (
+            <Step1
+              answers={answers}
+              handleAnswer={handleAnswer}
+              onNext={() => handleAnswer('step', 2)}
+            />
+          );
+        }
+        return (
+          <HomeOwnerStep
+            answers={answers}
+            handleAnswer={handleAnswer}
+            onNext={() => handleAnswer('step', 2)}
+          />
+        );
+      case 2:
+        if (!prefilledData?.home_owner && !answers.service) {
+          return (
+            <Step1
+              answers={answers}
+              handleAnswer={handleAnswer}
+              onNext={() => handleAnswer('step', 3)}
+            />
+          );
+        }
+        if (hasAddressInfo(prefilledData)) {
+          handleAnswer('step', 3);
+          return null;
+        }
+        return (
+          <AddressStep
+            answers={answers}
+            handleAnswer={handleAnswer}
+            onNext={() => handleAnswer('step', 3)}
+          />
+        );
+      case 3:
+        if (hasAddressInfo(prefilledData)) {
+          handleAnswer('step', 4);
+          return null;
+        }
+        if (!answers.property_address) {
+          return (
+            <AddressStep
+              answers={answers}
+              handleAnswer={handleAnswer}
+              onNext={() => handleAnswer('step', 4)}
+            />
+          );
+        }
+        if (hasContactInfo(prefilledData)) {
+          handleSubmit();
+          return null;
+        }
+        return (
+          <ContactInfoStep
+            answers={answers}
+            handleAnswer={handleAnswer}
+            onSubmit={handleSubmit}
+            isLoading={isLoading}
+            title="Get Your Free Plumbing Quote!"
+            buttonText="Get My Free Quote"
+          />
+        );
+      case 4:
+        if (hasContactInfo(prefilledData)) {
+          handleSubmit();
+          return null;
+        }
+        return (
+          <ContactInfoStep
+            answers={answers}
+            handleAnswer={handleAnswer}
+            onSubmit={handleSubmit}
+            isLoading={isLoading}
+            title="Get Your Free Plumbing Quote!"
+            buttonText="Get My Free Quote"
+          />
+        );
+      default:
+        return null;
+    }
+  };
+
+  if (isSubmitted) {
+    return (
+      <SuccessScreen
+        title="Thank You!"
+        message="Your plumbing quote request has been received. A qualified plumber in your area will contact you shortly."
+        serviceName="plumbing"
+      />
+    );
+  }
+
+  return (
+    <form onSubmit={(e) => e.preventDefault()} className="min-h-screen bg-gradient-to-br from-blue-50 via-cyan-50 to-teal-50">
+      {/* Hidden Jornaya LeadID token field */}
+      <input id="leadid_token" name="universal_leadid" type="hidden" />
+      {/* Hidden TrustedForm certificate URL field - TrustedForm will populate this */}
+      <input type="hidden" name="xxTrustedFormCertUrl" id="xxTrustedFormCertUrl" />
+
+      <header className="border-b bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-3 flex items-center justify-center">
+          <h1 className="text-xl font-bold text-primary">Get Free Plumbing Quotes</h1>
+        </div>
+      </header>
+
+      <div className="container mx-auto px-4 py-6 sm:py-8">
+        <div className="max-w-2xl mx-auto">
+          <ProgressBar currentStep={currentStep} totalSteps={actualTotalSteps} />
+          {renderCurrentStep()}
+          <SocialProof serviceName="homeowners" />
+          <ComplianceFooter />
+        </div>
+      </div>
+    </form>
+  );
+}
