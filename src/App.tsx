@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
 import NotFound from "./pages/NotFound";
+import HomePage from "./pages/HomePage";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import DoNotSell from "./pages/DoNotSell";
@@ -44,8 +45,8 @@ const App = () => {
         >
           <ScrollToTop />
           <Routes>
-            {/* Default route goes to Home Services Hub */}
-            <Route path="/" element={<HomeServicesHub />} />
+            {/* Homepage */}
+            <Route path="/" element={<HomePage />} />
             <Route path="/home-services" element={<HomeServicesHub />} />
             <Route path="/home-services/roofing" element={<RoofingLander />} />
             <Route path="/roofing" element={<RoofingLander />} />
