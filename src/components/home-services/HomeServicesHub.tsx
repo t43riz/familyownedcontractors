@@ -843,7 +843,7 @@ export default function HomeServicesHub() {
       <Button
         onClick={handleContinue}
         disabled={selectedServices.length === 0}
-        className="w-full py-6 text-lg font-bold bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+        className="w-full py-6 text-lg font-bold bg-brand-navy text-white hover:bg-brand-darkblue shadow-button hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 border-2 border-brand-navy"
       >
         {selectedServices.length === 0
           ? 'Select at Least One Service'
@@ -965,15 +965,18 @@ export default function HomeServicesHub() {
   const displayStep = isMultiStepMode ? currentStepIndex + 1 : 1;
 
   return (
-    <form onSubmit={(e) => e.preventDefault()} className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+    <form onSubmit={(e) => e.preventDefault()} className="min-h-screen bg-gradient-to-b from-background to-muted">
       {/* Hidden Jornaya LeadID token field */}
       <input id="leadid_token" name="universal_leadid" type="hidden" />
       {/* Hidden TrustedForm certificate URL field - TrustedForm will populate this */}
       <input type="hidden" name="xxTrustedFormCertUrl" id="xxTrustedFormCertUrl" />
 
-      <header className="border-b bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-3 flex items-center justify-center">
-          <h1 className="text-xl font-bold text-primary">Home Services</h1>
+      <header className="border-b border-border/60 bg-white sticky top-0 z-50 shadow-custom-sm">
+        <div className="container mx-auto px-4 py-3 sm:py-4 flex items-center justify-center">
+          <a href="/" className="flex flex-col items-center gap-1">
+            <img src="/FOC_less_logo.svg" alt="Family Owned Contractors" className="h-8 sm:h-10 w-auto" />
+              <img src="/FOC_name_logo.svg" alt="Family Owned Contractors" className="h-4 sm:h-6 w-auto" />
+          </a>
         </div>
       </header>
 

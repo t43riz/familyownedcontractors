@@ -40,6 +40,14 @@ export default {
         accent: {
           DEFAULT: "hsl(var(--accent))",
           foreground: "hsl(var(--accent-foreground))",
+          light: "hsl(var(--accent-light))",
+        },
+        brand: {
+          navy: "#002F6C",
+          blue: "#0164AE",
+          darkblue: "#013F84",
+          green: "#43802E",
+          lightgreen: "#7CBF44",
         },
         popover: {
           DEFAULT: "hsl(var(--popover))",

@@ -551,21 +551,16 @@ export default function HVACLanderC() {
   }
 
   return (
-    <form onSubmit={(e) => e.preventDefault()} className="min-h-screen bg-gray-50">
+    <form onSubmit={(e) => e.preventDefault()} className="min-h-screen bg-gradient-to-b from-background to-muted">
       <input id="leadid_token" name="universal_leadid" type="hidden" />
       <input type="hidden" name="xxTrustedFormCertUrl" id="xxTrustedFormCertUrl" />
 
-      <header className="border-b border-gray-100 bg-white sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Thermometer className="h-5 w-5 text-emerald-600" />
-            <span className="font-bold text-gray-900 text-sm">Free HVAC Quotes</span>
-          </div>
-          <div className="flex items-center gap-2 text-xs text-gray-500">
-            <span className="flex items-center gap-1"><Shield className="h-3 w-3 text-emerald-500" /> No obligation</span>
-            <span className="text-gray-300">|</span>
-            <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> 60 sec</span>
-          </div>
+      <header className="border-b border-border/60 bg-white sticky top-0 z-50 shadow-custom-sm">
+        <div className="container mx-auto px-4 py-3 sm:py-4 flex items-center justify-center">
+          <a href="/" className="flex flex-col items-center gap-1">
+            <img src="/FOC_less_logo.svg" alt="Family Owned Contractors" className="h-8 sm:h-10 w-auto" />
+              <img src="/FOC_name_logo.svg" alt="Family Owned Contractors" className="h-4 sm:h-6 w-auto" />
+          </a>
         </div>
       </header>
 

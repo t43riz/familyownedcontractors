@@ -6,35 +6,38 @@
 
 @layer base {
   :root {
-    /* Core Brand Colors */
+    /* Core Brand Colors - matched to FOC logo */
     --background: 210 20% 98%;
-    --foreground: 210 30% 8%;
+    --foreground: 212 100% 12%;
 
     /* Card System */
     --card: 0 0% 100%;
-    --card-foreground: 210 30% 8%;
+    --card-foreground: 212 100% 12%;
 
     /* Interactive Elements */
     --popover: 0 0% 100%;
-    --popover-foreground: 210 30% 8%;
+    --popover-foreground: 212 100% 12%;
 
-    /* Professional Blue Primary */
-    --primary: 210 100% 24%;
+    /* Deep Navy Primary - logo #002F6C */
+    --primary: 212 100% 21%;
     --primary-foreground: 0 0% 100%;
-    --primary-hover: 210 100% 20%;
+    --primary-hover: 212 100% 17%;
 
-    /* Teal Accent */
-    --secondary: 180 100% 35%;
+    /* Medium Blue Secondary - logo #0164AE */
+    --secondary: 210 98% 34%;
     --secondary-foreground: 0 0% 100%;
-    --secondary-hover: 180 100% 30%;
+    --secondary-hover: 210 98% 28%;
 
     /* Subtle Grays */
     --muted: 210 15% 96%;
-    --muted-foreground: 210 20% 45%;
+    --muted-foreground: 210 20% 40%;
 
-    /* Success Green */
-    --accent: 142 76% 36%;
+    /* Brand Green Accent - logo #43802E */
+    --accent: 106 48% 34%;
     --accent-foreground: 0 0% 100%;
+
+    /* Light Green - logo #7CBF44 */
+    --accent-light: 94 49% 51%;
 
     /* Error Red */
     --destructive: 0 72% 51%;
@@ -42,25 +45,25 @@
 
     /* Borders & Inputs */
     --border: 210 20% 88%;
-    --input: 210 20% 94%;
-    --ring: 210 100% 50%;
+    --input: 210 20% 92%;
+    --ring: 212 100% 21%;
 
-    /* Professional Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(210, 100%, 24%), hsl(180, 100%, 35%));
-    --gradient-hero: linear-gradient(180deg, hsl(210, 20%, 98%), hsl(210, 25%, 95%));
-    --gradient-card: linear-gradient(145deg, hsl(0, 0%, 100%), hsl(210, 15%, 98%));
+    /* Brand Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(212, 100%, 21%), hsl(210, 98%, 34%));
+    --gradient-hero: linear-gradient(180deg, hsl(212, 40%, 97%), hsl(210, 30%, 94%));
+    --gradient-card: linear-gradient(145deg, hsl(0, 0%, 100%), hsl(210, 20%, 98%));
 
     /* Shadows */
-    --shadow-sm: 0 2px 8px hsl(210, 30%, 8%, 0.04);
-    --shadow-md: 0 8px 25px hsl(210, 30%, 8%, 0.08);
-    --shadow-lg: 0 16px 40px hsl(210, 30%, 8%, 0.12);
-    --shadow-button: 0 4px 12px hsl(210, 100%, 24%, 0.25);
+    --shadow-sm: 0 2px 8px hsl(212, 100%, 12%, 0.06);
+    --shadow-md: 0 8px 25px hsl(212, 100%, 12%, 0.10);
+    --shadow-lg: 0 16px 40px hsl(212, 100%, 12%, 0.14);
+    --shadow-button: 0 4px 14px hsl(212, 100%, 21%, 0.30);
 
     /* Animation */
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-fast: all 0.15s ease-out;
 
-    --radius: 0.75rem;
+    --radius: 0.625rem;
 
     --sidebar-background: 0 0% 98%;
 
