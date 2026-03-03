@@ -30,7 +30,7 @@ const PrivacyPolicy = () => {
           <section>
             <h2 className="text-2xl font-semibold text-foreground mb-4">1. Introduction</h2>
             <p className="text-muted-foreground leading-relaxed">
-              This Privacy Policy describes how sellingproperty.net ("we," "us," "our," or the "Company") collects, uses, shares, and protects personal information provided through our website and associated forms. We operate as a marketing and information facilitation service that connects individuals who wish to sell their property with verified property buyers, investors, or service providers who may be interested in making contact, and/or home improvement service inquiries with verified service providers. We are not a real estate brokerage, agent, or intermediary. Our role is limited to collecting and transferring user-submitted inquiry information for marketing and contact purposes.
+              This Privacy Policy describes how familyownedcontractors.com ("we," "us," "our," or the "Company") collects, uses, shares, and protects personal information provided through our website and associated forms. We operate as a marketing and information facilitation service that connects individuals who wish to sell their property with verified property buyers, investors, or service providers who may be interested in making contact, and/or home improvement service inquiries with verified service providers. We are not a real estate brokerage, agent, or intermediary. Our role is limited to collecting and transferring user-submitted inquiry information for marketing and contact purposes.
             </p>
           </section>
 
@@ -58,14 +58,14 @@ const PrivacyPolicy = () => {
           <section>
             <h2 className="text-2xl font-semibold text-foreground mb-4">5. Your Rights Under State Privacy Laws</h2>
             <p className="text-muted-foreground leading-relaxed">
-              If you are a resident of California, Colorado, Virginia, Utah, or Connecticut, you have the right to know what information we collect, request access to that information, request its deletion, correct inaccurate data, and opt out of the sale or sharing of your information. You may exercise these rights by contacting us at contact@sellingproperty.net or by using the "Do Not Sell or Share My Personal Information" link available on our website. Upon receiving such a request, we will verify your identity before taking any action.
+              If you are a resident of California, Colorado, Virginia, Utah, or Connecticut, you have the right to know what information we collect, request access to that information, request its deletion, correct inaccurate data, and opt out of the sale or sharing of your information. You may exercise these rights by contacting us at contact@familyownedcontractors.com or by using the "Do Not Sell or Share My Personal Information" link available on our website. Upon receiving such a request, we will verify your identity before taking any action.
             </p>
           </section>
 
           <section>
             <h2 className="text-2xl font-semibold text-foreground mb-4">6. Opting Out of Sale or Sharing</h2>
             <p className="text-muted-foreground leading-relaxed">
-              If you wish to prevent the sale or transfer of your submitted information to our partners, you may contact us directly at contact@sellingproperty.net with "Do Not Sell" in the subject line or use the opt-out link provided on our website. Once your opt-out request is processed, your information will no longer be transferred for compensation, unless you later authorize us to do so.
+              If you wish to prevent the sale or transfer of your submitted information to our partners, you may contact us directly at contact@familyownedcontractors.com with "Do Not Sell" in the subject line or use the opt-out link provided on our website. Once your opt-out request is processed, your information will no longer be transferred for compensation, unless you later authorize us to do so.
             </p>
           </section>
 
@@ -121,14 +121,14 @@ const PrivacyPolicy = () => {
           <section>
             <h2 className="text-2xl font-semibold text-foreground mb-4">14. Contact Us</h2>
             <p className="text-muted-foreground leading-relaxed">
-              If you have any questions, concerns, or privacy-related requests, please contact us at contact@sellingproperty.net or visit sellingproperty.net.
+              If you have any questions, concerns, or privacy-related requests, please contact us at contact@familyownedcontractors.com or visit familyownedcontractors.com.
             </p>
           </section>
 
           <section>
             <h2 className="text-2xl font-semibold text-foreground mb-4">15. Summary</h2>
             <p className="text-muted-foreground leading-relaxed">
-              sellingproperty.net is a marketing and information facilitation platform that collects and transfers user-submitted property inquiry information to verified partners and buyers for lawful marketing and contact purposes. We comply with all applicable U.S. privacy laws, respect consumer rights, and maintain transparency about how data is collected, used, and sold. By submitting your information on our website, you consent to these practices and acknowledge that your data may be transferred to authorized parties in accordance with this Privacy Policy.
+              familyownedcontractors.com is a marketing and information facilitation platform that collects and transfers user-submitted property inquiry information to verified partners and buyers for lawful marketing and contact purposes. We comply with all applicable U.S. privacy laws, respect consumer rights, and maintain transparency about how data is collected, used, and sold. By submitting your information on our website, you consent to these practices and acknowledge that your data may be transferred to authorized parties in accordance with this Privacy Policy.
             </p>
           </section>
 

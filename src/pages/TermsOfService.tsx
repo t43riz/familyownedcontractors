@@ -30,14 +30,14 @@ const TermsOfService = () => {
           <section>
             <h2 className="text-2xl font-semibold text-foreground mb-4">1. Introduction</h2>
             <p className="text-muted-foreground leading-relaxed">
-              Welcome to sellingproperty.net ("we," "us," "our," or the "Website"). These Terms of Service ("Terms") govern your use of our website and any information you provide through it. By visiting or submitting information on sellingproperty.net, you agree to these Terms. If you do not agree, please do not use our Website. This document describes the terms under which you may use our site, submit your information, and understand how that information may be transferred or used.
+              Welcome to familyownedcontractors.com ("we," "us," "our," or the "Website"). These Terms of Service ("Terms") govern your use of our website and any information you provide through it. By visiting or submitting information on familyownedcontractors.com, you agree to these Terms. If you do not agree, please do not use our Website. This document describes the terms under which you may use our site, submit your information, and understand how that information may be transferred or used.
             </p>
           </section>
 
           <section>
             <h2 className="text-2xl font-semibold text-foreground mb-4">2. Nature of Our Services</h2>
             <p className="text-muted-foreground leading-relaxed">
-              sellingproperty.net operates as a marketing and information facilitation platform. We connect individuals who wish to sell their property ("you," "user," or "submitter") with verified property buyers, investors, and service providers who may be interested in contacting you. We are not a real estate brokerage, agent, lender, or intermediary. We do not represent you or any buyer, and we are not a party to any property transaction. Our sole role is to collect the information you provide voluntarily and transfer or sell that information to third parties for lawful marketing and contact purposes.
+              familyownedcontractors.com operates as a marketing and information facilitation platform. We connect individuals who wish to sell their property ("you," "user," or "submitter") with verified property buyers, investors, and service providers who may be interested in contacting you. We are not a real estate brokerage, agent, lender, or intermediary. We do not represent you or any buyer, and we are not a party to any property transaction. Our sole role is to collect the information you provide voluntarily and transfer or sell that information to third parties for lawful marketing and contact purposes.
             </p>
           </section>
 
@@ -51,7 +51,7 @@ const TermsOfService = () => {
           <section>
             <h2 className="text-2xl font-semibold text-foreground mb-4">4. Consent to Use and Sale of Information</h2>
             <p className="text-muted-foreground leading-relaxed">
-              By submitting your information on our Website or through our advertisements, you expressly consent to our collection, processing, use, and sale of your submitted information for marketing and contact purposes. You understand that the information you provide may be transferred to verified business partners who may reach out to you by phone, email, text, or other means to discuss your property or related opportunities. You may opt out of future data sales or transfers at any time by contacting us at contact@sellingproperty.net or by using the "Do Not Sell or Share My Personal Information" link available on our site.
+              By submitting your information on our Website or through our advertisements, you expressly consent to our collection, processing, use, and sale of your submitted information for marketing and contact purposes. You understand that the information you provide may be transferred to verified business partners who may reach out to you by phone, email, text, or other means to discuss your property or related opportunities. You may opt out of future data sales or transfers at any time by contacting us at contact@familyownedcontractors.com or by using the "Do Not Sell or Share My Personal Information" link available on our site.
             </p>
           </section>
 
@@ -72,28 +72,28 @@ const TermsOfService = () => {
           <section>
             <h2 className="text-2xl font-semibold text-foreground mb-4">7. Limitation of Liability</h2>
             <p className="text-muted-foreground leading-relaxed">
-              To the fullest extent permitted by law, sellingproperty.net and its owners, employees, and affiliates are not liable for any direct, indirect, incidental, consequential, special, or punitive damages arising out of or relating to your use of the Website or submission of information. This includes, but is not limited to, any loss of profit, loss of business, data breach, unauthorized access, or harm arising from communications with third parties. Our total liability, if any, shall not exceed one hundred dollars ($100) or the amount you paid to us, whichever is less. You agree that this limitation is fair, reasonable, and forms a fundamental condition of your use of our Website.
+              To the fullest extent permitted by law, familyownedcontractors.com and its owners, employees, and affiliates are not liable for any direct, indirect, incidental, consequential, special, or punitive damages arising out of or relating to your use of the Website or submission of information. This includes, but is not limited to, any loss of profit, loss of business, data breach, unauthorized access, or harm arising from communications with third parties. Our total liability, if any, shall not exceed one hundred dollars ($100) or the amount you paid to us, whichever is less. You agree that this limitation is fair, reasonable, and forms a fundamental condition of your use of our Website.
             </p>
           </section>
 
           <section>
             <h2 className="text-2xl font-semibold text-foreground mb-4">8. Indemnification</h2>
             <p className="text-muted-foreground leading-relaxed">
-              You agree to indemnify and hold harmless sellingproperty.net, its owners, employees, and affiliates from any claims, damages, losses, or expenses arising from your use of the Website, your submission of information, your communications with third parties, or your violation of these Terms or applicable law.
+              You agree to indemnify and hold harmless familyownedcontractors.com, its owners, employees, and affiliates from any claims, damages, losses, or expenses arising from your use of the Website, your submission of information, your communications with third parties, or your violation of these Terms or applicable law.
             </p>
           </section>
 
           <section>
             <h2 className="text-2xl font-semibold text-foreground mb-4">9. Relationship Between Parties</h2>
             <p className="text-muted-foreground leading-relaxed">
-              Nothing in these Terms creates any agency, partnership, joint venture, employment, or fiduciary relationship between you and sellingproperty.net. You acknowledge that we act solely as an independent marketing and data facilitation platform.
+              Nothing in these Terms creates any agency, partnership, joint venture, employment, or fiduciary relationship between you and familyownedcontractors.com. You acknowledge that we act solely as an independent marketing and data facilitation platform.
             </p>
           </section>
 
           <section>
             <h2 className="text-2xl font-semibold text-foreground mb-4">10. Compliance with Laws</h2>
             <p className="text-muted-foreground leading-relaxed">
-              We comply with applicable United States privacy and consumer protection laws, including the California Consumer Privacy Act (CCPA/CPRA) and other state laws. You agree to comply with all applicable laws when using our Website. You may exercise your privacy rights, including the right to access, delete, or opt out of the sale of your data, by contacting us at contact@sellingproperty.net. For more information about how we collect, use, and protect your data, please see our{' '}
+              We comply with applicable United States privacy and consumer protection laws, including the California Consumer Privacy Act (CCPA/CPRA) and other state laws. You agree to comply with all applicable laws when using our Website. You may exercise your privacy rights, including the right to access, delete, or opt out of the sale of your data, by contacting us at contact@familyownedcontractors.com. For more information about how we collect, use, and protect your data, please see our{' '}
               <a href="/privacy" className="text-primary underline hover:text-primary/80">
                 Privacy Policy
               </a>.
@@ -131,14 +131,14 @@ const TermsOfService = () => {
           <section>
             <h2 className="text-2xl font-semibold text-foreground mb-4">15. Contact Information</h2>
             <p className="text-muted-foreground leading-relaxed">
-              If you have any questions, concerns, or requests regarding these Terms, please contact us at contact@sellingproperty.net or visit sellingproperty.net.
+              If you have any questions, concerns, or requests regarding these Terms, please contact us at contact@familyownedcontractors.com or visit familyownedcontractors.com.
             </p>
           </section>
 
           <section>
             <h2 className="text-2xl font-semibold text-foreground mb-4">16. Disclaimer Summary</h2>
             <p className="text-muted-foreground leading-relaxed">
-              sellingproperty.net is not a real estate brokerage, agent, or financial intermediary. We do not buy or sell properties, negotiate transactions, or provide legal or financial advice. We collect and transfer user-submitted property inquiry information to verified business partners for marketing and contact purposes. All use of this Website and participation in any subsequent communication or transaction is solely at your own risk.
+              familyownedcontractors.com is not a real estate brokerage, agent, or financial intermediary. We do not buy or sell properties, negotiate transactions, or provide legal or financial advice. We collect and transfer user-submitted property inquiry information to verified business partners for marketing and contact purposes. All use of this Website and participation in any subsequent communication or transaction is solely at your own risk.
             </p>
           </section>
 

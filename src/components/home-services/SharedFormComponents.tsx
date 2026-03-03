@@ -666,7 +666,7 @@ export const ContactInfoStep = ({
 
 export const TCPAConsent = () => (
   <p className="text-xs text-muted-foreground text-center leading-relaxed mt-4">
-    By submitting, I consent and provide my electronic signature as express written consent for SellingProperty.net and up to 4 of its{' '}
+    By submitting, I consent and provide my electronic signature as express written consent for FamilyOwnedContractors.com and up to 4 of its{' '}
     <a
       href="/partners"
       target="_blank"
@@ -717,7 +717,7 @@ export const ComplianceFooter = () => (
         </a>
       </div>
       <p className="text-xs text-muted-foreground">
-        © {new Date().getFullYear()} SellingProperty.net. All rights reserved.
+        © {new Date().getFullYear()} FamilyOwnedContractors.com. All rights reserved.
       </p>
     </div>
   </footer>
