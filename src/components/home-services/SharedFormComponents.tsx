@@ -49,10 +49,8 @@ export interface OptionItem {
 // ============================================================================
 
 export const AnimatedCard = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
-  <Card className={`p-4 sm:p-6 bg-gradient-to-br from-card via-card/95 to-primary/5 shadow-xl border border-primary/20 max-w-xl mx-auto relative overflow-hidden transform transition-all duration-500 hover:shadow-2xl ${className}`}>
-    <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-primary via-secondary to-accent"></div>
-    <div className="absolute -top-6 -right-6 w-12 h-12 bg-primary/10 rounded-full blur-xl animate-pulse"></div>
-    <div className="absolute -bottom-6 -left-6 w-10 h-10 bg-secondary/10 rounded-full blur-xl animate-pulse delay-1000"></div>
+  <Card className={`p-4 sm:p-6 bg-white shadow-custom-lg border-2 border-border max-w-xl mx-auto relative overflow-hidden transform transition-all duration-500 ${className}`}>
+    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-brand-navy via-brand-blue to-brand-navy"></div>
     <div className="relative z-10">
       {children}
     </div>
@@ -65,14 +63,14 @@ export const AnimatedCard = ({ children, className = "" }: { children: React.Rea
 
 export const ProgressBar = ({ currentStep, totalSteps }: { currentStep: number; totalSteps: number }) => (
   <div className="mb-6">
-    <div className="w-full bg-gray-200 rounded-full h-1">
+    <div className="w-full bg-border rounded-full h-2">
       <div
-        className="bg-primary h-1 rounded-full transition-all duration-300"
+        className="bg-brand-navy h-2 rounded-full transition-all duration-300"
         style={{ width: `${(currentStep / totalSteps) * 100}%` }}
       ></div>
     </div>
     <div className="text-center mt-2">
-      <span className="text-xs text-muted-foreground">{currentStep}/{totalSteps}</span>
+      <span className="text-xs font-medium text-muted-foreground">Step {currentStep} of {totalSteps}</span>
     </div>
   </div>
 );
@@ -97,10 +95,10 @@ export const OptionButton = ({
   <Button
     variant={isSelected ? "default" : "outline"}
     onClick={onClick}
-    className={`${fullWidth ? 'w-full' : ''} ${size === 'compact' ? 'py-5 px-3 text-base' : 'py-6 px-4 text-lg'} font-semibold transition-all duration-200 ${
+    className={`${fullWidth ? 'w-full' : ''} ${size === 'compact' ? 'py-4 sm:py-5 px-3 text-sm sm:text-base' : 'py-4 sm:py-6 px-3 sm:px-4 text-base sm:text-lg'} font-bold transition-all duration-200 ${
       isSelected
-        ? 'bg-primary text-primary-foreground shadow-lg scale-105'
-        : 'hover:bg-primary/10 hover:text-primary hover:border-primary hover:scale-105'
+        ? 'bg-brand-navy text-white shadow-button scale-[1.02] border-2 border-brand-navy'
+        : 'border-2 border-border hover:bg-brand-navy/5 hover:text-brand-navy hover:border-brand-navy/40'
     }`}
   >
     {option.icon && <span className="mr-2">{option.icon}</span>}
@@ -124,14 +122,14 @@ export const StepHeader = ({
   subtitle?: string;
 }) => (
   <div className="text-center mb-6">
-    <div className={`w-16 h-16 bg-gradient-to-br ${iconColor} rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg`}>
+    <div className={`w-12 h-12 sm:w-16 sm:h-16 bg-brand-navy rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-lg ring-4 ring-brand-navy/10`}>
       {icon}
     </div>
-    <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-3 leading-tight">
+    <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-foreground mb-2 sm:mb-3 leading-tight">
       {title}
     </h1>
     {subtitle && (
-      <p className="text-base text-muted-foreground mb-2">
+      <p className="text-sm sm:text-base text-muted-foreground mb-2">
         {subtitle}
       </p>
     )}
@@ -335,7 +333,7 @@ export const AddressStep = ({ answers, handleAnswer, onNext }: StepProps) => {
                 setAddressInput(e.target.value);
                 setIsAddressSelected(false);
               }}
-              className="w-full text-lg py-6"
+              className="w-full text-base sm:text-lg py-4 sm:py-6"
             />
             {!isAddressSelected && addressInput && (
               <p className="text-sm text-muted-foreground">
@@ -366,7 +364,7 @@ export const AddressStep = ({ answers, handleAnswer, onNext }: StepProps) => {
               placeholder="123 Main St"
               value={manualAddress.street}
               onChange={(e) => handleManualAddressChange('street', e.target.value)}
-              className="w-full text-lg py-6"
+              className="w-full text-base sm:text-lg py-4 sm:py-6"
             />
           </div>
 
@@ -381,7 +379,7 @@ export const AddressStep = ({ answers, handleAnswer, onNext }: StepProps) => {
                 placeholder="City"
                 value={manualAddress.city}
                 onChange={(e) => handleManualAddressChange('city', e.target.value)}
-                className="w-full text-lg py-6"
+                className="w-full text-base sm:text-lg py-4 sm:py-6"
               />
             </div>
 
@@ -396,7 +394,7 @@ export const AddressStep = ({ answers, handleAnswer, onNext }: StepProps) => {
                 maxLength={2}
                 value={manualAddress.state}
                 onChange={(e) => handleManualAddressChange('state', e.target.value.toUpperCase())}
-                className="w-full text-lg py-6"
+                className="w-full text-base sm:text-lg py-4 sm:py-6"
               />
             </div>
           </div>
@@ -412,7 +410,7 @@ export const AddressStep = ({ answers, handleAnswer, onNext }: StepProps) => {
               maxLength={5}
               value={manualAddress.zip}
               onChange={(e) => handleManualAddressChange('zip', e.target.value)}
-              className="w-full text-lg py-6"
+              className="w-full text-base sm:text-lg py-4 sm:py-6"
             />
           </div>
 
@@ -521,8 +519,9 @@ export const ContactInfoStep = ({
         subtitle={subtitle}
       />
 
-      <div className="bg-gradient-to-r from-green-50 to-blue-50 p-4 rounded-lg border-2 border-green-200 mb-6">
-        <p className="text-sm font-bold text-green-800">
+      <div className="bg-brand-green/5 p-4 rounded-lg border-2 border-brand-green/20 mb-6">
+        <p className="text-sm font-bold text-brand-green flex items-center justify-center gap-2">
+          <CheckCircle className="h-4 w-4" />
           Compare quotes from top-rated local pros
         </p>
       </div>
@@ -530,7 +529,7 @@ export const ContactInfoStep = ({
       <form className="space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="firstName" className="text-base font-medium flex items-center gap-2">
+            <Label htmlFor="firstName" className="text-sm sm:text-base font-medium flex items-center gap-1.5 sm:gap-2">
               <User className="h-5 w-5" /> First Name
             </Label>
             <Input
@@ -544,7 +543,7 @@ export const ContactInfoStep = ({
                   handleAnswer('first_name', value);
                 }
               }}
-              className={`text-lg py-6 ${errors.first_name ? 'border-red-500' : ''}`}
+              className={`text-base sm:text-lg py-4 sm:py-6 ${errors.first_name ? 'border-red-500' : ''}`}
               maxLength={50}
               required
             />
@@ -554,7 +553,7 @@ export const ContactInfoStep = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="lastName" className="text-base font-medium flex items-center gap-2">
+            <Label htmlFor="lastName" className="text-sm sm:text-base font-medium flex items-center gap-1.5 sm:gap-2">
               Last Name
             </Label>
             <Input
@@ -568,7 +567,7 @@ export const ContactInfoStep = ({
                   handleAnswer('last_name', value);
                 }
               }}
-              className={`text-lg py-6 ${errors.last_name ? 'border-red-500' : ''}`}
+              className={`text-base sm:text-lg py-4 sm:py-6 ${errors.last_name ? 'border-red-500' : ''}`}
               maxLength={50}
               required
             />
@@ -579,7 +578,7 @@ export const ContactInfoStep = ({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="phone" className="text-base font-medium flex items-center gap-2">
+          <Label htmlFor="phone" className="text-sm sm:text-base font-medium flex items-center gap-1.5 sm:gap-2">
             <Phone className="h-5 w-5" /> Phone Number
           </Label>
           <Input
@@ -604,7 +603,7 @@ export const ContactInfoStep = ({
               handleAnswer('phone_number', formatted);
             }}
             maxLength={14}
-            className={`text-lg py-6 ${errors.phone_number ? 'border-red-500' : ''}`}
+            className={`text-base sm:text-lg py-4 sm:py-6 ${errors.phone_number ? 'border-red-500' : ''}`}
             required
           />
           {errors.phone_number && (
@@ -613,7 +612,7 @@ export const ContactInfoStep = ({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="email" className="text-base font-medium flex items-center gap-2">
+          <Label htmlFor="email" className="text-sm sm:text-base font-medium flex items-center gap-1.5 sm:gap-2">
             <Mail className="h-5 w-5" /> Email Address
           </Label>
           <Input
@@ -624,7 +623,7 @@ export const ContactInfoStep = ({
             onChange={(e) => {
               handleAnswer('email', e.target.value);
             }}
-            className={`text-lg py-6 ${errors.email ? 'border-red-500' : ''}`}
+            className={`text-base sm:text-lg py-4 sm:py-6 ${errors.email ? 'border-red-500' : ''}`}
             required
           />
           {errors.email && (
@@ -638,7 +637,7 @@ export const ContactInfoStep = ({
           type="button"
           onClick={handleSubmit}
           disabled={isLoading}
-          className="w-full py-6 text-lg font-bold bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 mt-6"
+          className="w-full py-6 text-lg font-bold bg-brand-green hover:bg-brand-green/90 text-white shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 mt-6 border-2 border-brand-green"
         >
           {isLoading ? (
             <div className="flex items-center justify-center space-x-2">
@@ -701,18 +700,18 @@ export const TCPAConsent = () => (
 // ============================================================================
 
 export const ComplianceFooter = () => (
-  <footer className="mt-8 pt-6 border-t border-gray-200">
+  <footer className="mt-8 pt-6 border-t border-border">
     <div className="text-center space-y-3">
       <div className="flex flex-wrap justify-center gap-4 text-xs text-muted-foreground">
-        <a href="/privacy" target="_blank" rel="noopener noreferrer" className="hover:text-primary hover:underline">
+        <a href="/privacy" target="_blank" rel="noopener noreferrer" className="hover:text-brand-navy hover:underline transition-colors">
           Privacy Policy
         </a>
-        <span className="text-gray-300">|</span>
-        <a href="/terms" target="_blank" rel="noopener noreferrer" className="hover:text-primary hover:underline">
+        <span className="text-border">|</span>
+        <a href="/terms" target="_blank" rel="noopener noreferrer" className="hover:text-brand-navy hover:underline transition-colors">
           Terms of Service
         </a>
-        <span className="text-gray-300">|</span>
-        <a href="/do-not-sell" target="_blank" rel="noopener noreferrer" className="hover:text-primary hover:underline">
+        <span className="text-border">|</span>
+        <a href="/do-not-sell" target="_blank" rel="noopener noreferrer" className="hover:text-brand-navy hover:underline transition-colors">
           Do Not Sell My Info
         </a>
       </div>
@@ -747,15 +746,15 @@ export const SuccessScreen = ({
   const config = serviceConfig[serviceName] || { displayName: serviceName, specialist: 'specialist' };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-b from-background to-muted flex items-center justify-center p-4">
       <AnimatedCard className="text-center">
-        <div className="w-24 h-24 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl">
-          <CheckCircle className="h-12 w-12 text-white" />
+        <div className="w-16 h-16 sm:w-24 sm:h-24 bg-brand-green rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-xl ring-4 ring-brand-green/20">
+          <CheckCircle className="h-8 w-8 sm:h-12 sm:w-12 text-white" />
         </div>
-        <h2 className="text-3xl font-bold text-foreground mb-4">
+        <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3 sm:mb-4">
           🎉 Congratulations! Your Request Is Confirmed!
         </h2>
-        <p className="text-lg text-muted-foreground mb-4">
+        <p className="text-base sm:text-lg text-muted-foreground mb-4">
           You've successfully taken the first step toward getting your {config.displayName} project handled by a trusted local expert.
         </p>
         <div className="bg-gradient-to-r from-yellow-100 to-orange-100 p-4 rounded-lg border-2 border-orange-300 mb-6 shadow-lg">
@@ -785,20 +784,20 @@ export const SuccessScreen = ({
 export const SocialProof = ({ serviceName = "homeowners" }: { serviceName?: string }) => (
   <div className="mt-6 text-center">
     <p className="text-sm text-muted-foreground mb-3">
-      <span className="font-semibold text-foreground">Thousands of {serviceName}</span> get quotes every month
+      <span className="font-bold text-foreground">Thousands of {serviceName}</span> get quotes every month
     </p>
-    <div className="flex items-center justify-center gap-6 text-xs text-muted-foreground">
+    <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-xs text-muted-foreground">
       <div className="flex items-center gap-1">
-        <CheckCircle className="h-4 w-4 text-green-600" />
-        <span>Free quotes</span>
+        <CheckCircle className="h-4 w-4 text-brand-green" />
+        <span className="font-medium">Free quotes</span>
       </div>
       <div className="flex items-center gap-1">
-        <CheckCircle className="h-4 w-4 text-green-600" />
-        <span>Licensed pros</span>
+        <CheckCircle className="h-4 w-4 text-brand-green" />
+        <span className="font-medium">Licensed pros</span>
       </div>
       <div className="flex items-center gap-1">
-        <CheckCircle className="h-4 w-4 text-green-600" />
-        <span>No obligation</span>
+        <CheckCircle className="h-4 w-4 text-brand-green" />
+        <span className="font-medium">No obligation</span>
       </div>
     </div>
   </div>
@@ -825,22 +824,22 @@ export const ServiceCard = ({
     onClick={onClick}
     className={`p-4 cursor-pointer transition-all duration-200 ${
       isSelected
-        ? 'border-2 border-primary bg-primary/5 shadow-lg scale-105'
-        : 'border border-gray-200 hover:border-primary/50 hover:bg-gray-50'
+        ? 'border-2 border-brand-navy bg-brand-navy/5 shadow-custom-md scale-[1.02]'
+        : 'border-2 border-border hover:border-brand-navy/30 hover:bg-muted/50'
     }`}
   >
     <div className="flex items-start gap-3">
-      <div className={`p-2 rounded-lg ${isSelected ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600'}`}>
+      <div className={`p-2 rounded-lg ${isSelected ? 'bg-brand-navy text-white' : 'bg-muted text-muted-foreground'}`}>
         {icon}
       </div>
       <div className="flex-1">
-        <h3 className={`font-semibold ${isSelected ? 'text-primary' : 'text-foreground'}`}>
+        <h3 className={`font-bold ${isSelected ? 'text-brand-navy' : 'text-foreground'}`}>
           {title}
         </h3>
         <p className="text-sm text-muted-foreground">{description}</p>
       </div>
       {isSelected && (
-        <CheckCircle className="h-5 w-5 text-primary" />
+        <CheckCircle className="h-5 w-5 text-brand-green" />
       )}
     </div>
   </Card>

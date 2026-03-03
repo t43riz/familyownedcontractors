@@ -589,24 +589,16 @@ export default function HVACLanderB() {
   }
 
   return (
-    <form onSubmit={(e) => e.preventDefault()} className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-amber-50">
+    <form onSubmit={(e) => e.preventDefault()} className="min-h-screen bg-gradient-to-b from-background to-muted">
       <input id="leadid_token" name="universal_leadid" type="hidden" />
       <input type="hidden" name="xxTrustedFormCertUrl" id="xxTrustedFormCertUrl" />
 
-      <header className="border-b border-gray-100 bg-white/90 backdrop-blur-sm sticky top-0 z-50 shadow-sm">
-        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
-              <MessageCircle className="h-4 w-4 text-white" />
-            </div>
-            <div>
-              <span className="text-sm font-bold text-gray-900">HVAC Advisor</span>
-              <span className="text-[10px] text-green-500 ml-2 font-medium">● Online</span>
-            </div>
-          </div>
-          <div className="text-[10px] text-gray-500 flex items-center gap-1">
-            <Shield className="h-3 w-3 text-orange-500" /> Free quotes
-          </div>
+      <header className="border-b border-border/60 bg-white sticky top-0 z-50 shadow-custom-sm">
+        <div className="container mx-auto px-4 py-3 sm:py-4 flex items-center justify-center">
+          <a href="/" className="flex flex-col items-center gap-1">
+            <img src="/FOC_less_logo.svg" alt="Family Owned Contractors" className="h-8 sm:h-10 w-auto" />
+              <img src="/FOC_name_logo.svg" alt="Family Owned Contractors" className="h-4 sm:h-6 w-auto" />
+          </a>
         </div>
       </header>
 

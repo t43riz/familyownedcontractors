@@ -428,15 +428,18 @@ export default function WindowsLander() {
   }
 
   return (
-    <form onSubmit={(e) => e.preventDefault()} className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+    <form onSubmit={(e) => e.preventDefault()} className="min-h-screen bg-gradient-to-b from-background to-muted">
       {/* Hidden Jornaya LeadID token field */}
       <input id="leadid_token" name="universal_leadid" type="hidden" />
       {/* Hidden TrustedForm certificate URL field - TrustedForm will populate this */}
       <input type="hidden" name="xxTrustedFormCertUrl" id="xxTrustedFormCertUrl" />
 
-      <header className="border-b bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-3 flex items-center justify-center">
-          <h1 className="text-xl font-bold text-primary">Get Free Window Replacement Quotes</h1>
+      <header className="border-b border-border/60 bg-white sticky top-0 z-50 shadow-custom-sm">
+        <div className="container mx-auto px-4 py-3 sm:py-4 flex items-center justify-center">
+          <a href="/" className="flex flex-col items-center gap-1">
+            <img src="/FOC_less_logo.svg" alt="Family Owned Contractors" className="h-8 sm:h-10 w-auto" />
+              <img src="/FOC_name_logo.svg" alt="Family Owned Contractors" className="h-4 sm:h-6 w-auto" />
+          </a>
         </div>
       </header>
 
