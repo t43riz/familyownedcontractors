@@ -548,7 +548,7 @@ const StepContact = ({ answers, handleAnswer, onSubmit, isLoading }: any) => {
         </div>
 
         <p className="text-[10px] text-white/30 leading-relaxed mt-3">
-          By submitting, I consent and provide my electronic signature as express written consent for FamilyOwnedContractors.com and up to 4 of its{' '}
+          By clicking "Get My Free Quote" below, I consent and provide my electronic signature as express written consent for FamilyOwnedContractors.com and up to 4 of its{' '}
           <a href="/partners" target="_blank" className="text-amber-400/50 underline">marketing partners</a>, including American Residential Services LLC,
           affiliated home service companies and their partners, and parties acting on their behalf to contact me regarding home improvement services
           via email, text, or phone calls at the number and email I provided. This contact may include the use of automated or automatic telephone
@@ -712,7 +712,7 @@ export default function HVACLanderA() {
       home_owner: answers.home_owner || 'Yes',
       landing_page_url: window.location.href,
       user_agent: navigator.userAgent,
-      tcpa_text: 'By submitting, I consent and provide my electronic signature as express written consent for FamilyOwnedContractors.com and up to 4 of its marketing partners, including American Residential Services LLC, affiliated home service companies and their partners, and parties acting on their behalf to contact me regarding home improvement services via email, text, or phone calls at the number and email I provided. This contact may include the use of automated or automatic telephone dialing systems, prerecorded or artificial voice messages, and/or artificial technology. Message and data rates may apply. Message frequency may vary. Text HELP for assistance or STOP to opt out. My consent applies even if my number is registered on any state or federal Do-Not-Call registry. I have read and agree to the Privacy Policy and Terms of Service.',
+      tcpa_text: 'By clicking "Get My Free Quote" below, I consent and provide my electronic signature as express written consent for FamilyOwnedContractors.com and up to 4 of its marketing partners, including American Residential Services LLC, affiliated home service companies and their partners, and parties acting on their behalf to contact me regarding home improvement services via email, text, or phone calls at the number and email I provided. This contact may include the use of automated or automatic telephone dialing systems, prerecorded or artificial voice messages, and/or artificial technology. Message and data rates may apply. Message frequency may vary. Text HELP for assistance or STOP to opt out. My consent applies even if my number is registered on any state or federal Do-Not-Call registry. I have read and agree to the Privacy Policy and Terms of Service.',
       jornaya_leadid: getLeadIdToken(),
       trustedform_cert_url: getTrustedFormCert(),
       query_parameters: queryParams,
