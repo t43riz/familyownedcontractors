@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label";
 import { decodeLeadData, hasContactInfo, hasAddressInfo, LeadData } from '@/utils/leadDataHandoff';
 import { submitHomeServicesLead } from '@/services/homeServicesApi';
 
-const TOTAL_STEPS = 7;
+const TOTAL_STEPS = 8;
 
 const airTypeOptions = [
   { label: 'Cooling (AC)', value: 'Cooling' },

@@ -19,7 +19,7 @@ import agentAvatar from '@/assets/agent-avatar.jpg';
 // ============================================================================
 // CONSTANTS (identical form options)
 // ============================================================================
-const TOTAL_STEPS = 7;
+const TOTAL_STEPS = 8;
 
 const airTypeOptions = [
   { label: 'Cooling (AC)', value: 'Cooling' },

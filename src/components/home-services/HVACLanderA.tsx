@@ -29,7 +29,7 @@ import { submitHomeServicesLead } from '@/services/homeServicesApi';
 // CONSTANTS (identical form options)
 // ============================================================================
 
-const TOTAL_STEPS = 7;
+const TOTAL_STEPS = 8;
 
 const airTypeOptions = [
   { label: 'Cooling (AC)', value: 'Cooling', icon: <Fan className="h-5 w-5" /> },
