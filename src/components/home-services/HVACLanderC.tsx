@@ -247,6 +247,7 @@ const StepAddress = ({ answers, handleAnswer, onNext }: any) => {
   const [isAddressSelected, setIsAddressSelected] = useState(!!answers.property_address);
   const [showManual, setShowManual] = useState(false);
   const [mapsLoadFailed, setMapsLoadFailed] = useState(false);
+  const [justSelected, setJustSelected] = useState(false);
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [manual, setManual] = useState({ street: '', city: '', state: '', zip: '' });
@@ -284,6 +285,8 @@ const StepAddress = ({ answers, handleAnswer, onNext }: any) => {
           if (zip) handleAnswer('zip_code', zip);
           setAddressInput(place.formatted_address || '');
           setIsAddressSelected(true);
+          setJustSelected(true);
+          setTimeout(() => setJustSelected(false), 400);
         });
       } catch { setMapsLoadFailed(true); }
     };
@@ -325,7 +328,7 @@ const StepAddress = ({ answers, handleAnswer, onNext }: any) => {
           <button onClick={() => setShowManual(false)} className="text-xs text-gray-400 underline">Back to search</button>
         </div>
       )}
-      <Button onClick={onNext} disabled={!canProceed} className="w-full mt-3 py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold">
+      <Button onClick={onNext} disabled={!canProceed || justSelected} className="w-full mt-3 py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold">
         Continue <ChevronRight className="ml-1 h-4 w-4" />
       </Button>
     </StepCard>
