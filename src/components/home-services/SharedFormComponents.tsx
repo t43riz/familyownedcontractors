@@ -665,7 +665,7 @@ export const ContactInfoStep = ({
 
 export const TCPAConsent = () => (
   <p className="text-xs text-muted-foreground text-center leading-relaxed mt-4">
-    By submitting, I consent and provide my electronic signature as express written consent for SellingProperty.net and up to 4 of its{' '}
+    By clicking "Get My Free Quote" below, I consent and provide my electronic signature as express written consent for FamilyOwnedContractors.com and up to 4 of its{' '}
     <a
       href="/partners"
       target="_blank"

@@ -6,7 +6,7 @@ const DoNotSell = () => {
   const navigate = useNavigate();
 
   const handleContactClick = () => {
-    window.location.href = "mailto:contact@sellingproperty.net?subject=Do Not Sell or Share My Personal Information";
+    window.location.href = "mailto:contact@familyownedcontractors.com?subject=Do Not Sell or Share My Personal Information";
   };
 
   return (
@@ -37,7 +37,7 @@ const DoNotSell = () => {
 
         <div className="prose prose-slate dark:prose-invert max-w-none space-y-6">
           <p className="text-muted-foreground leading-relaxed">
-            This page allows you to exercise your right to opt out of the sale or sharing of your personal information. If you submit a property inquiry on sellingproperty.net, we collect the information you provide and may transfer, license, or sell that information to verified property buyers, investors, or related service providers for marketing and contact purposes. California law defines "sell" as exchanging personal information for monetary or other valuable consideration and defines "share" as disclosing personal information to third parties for cross-context behavioral advertising. When you opt out, we will stop selling or sharing your personal information as defined by these laws.
+            This page allows you to exercise your right to opt out of the sale or sharing of your personal information. If you submit a property inquiry on familyownedcontractors.com, we collect the information you provide and may transfer, license, or sell that information to verified property buyers, investors, or related service providers for marketing and contact purposes. California law defines "sell" as exchanging personal information for monetary or other valuable consideration and defines "share" as disclosing personal information to third parties for cross-context behavioral advertising. When you opt out, we will stop selling or sharing your personal information as defined by these laws.
           </p>
 
           <p className="text-muted-foreground leading-relaxed">
@@ -51,7 +51,7 @@ const DoNotSell = () => {
           <div className="bg-primary/5 border border-primary/20 rounded-lg p-6 my-8">
             <h2 className="text-2xl font-semibold text-foreground mb-4">How to Submit Your Request</h2>
             <p className="text-muted-foreground leading-relaxed mb-6">
-              To exercise your right to opt out, please send an email to contact@sellingproperty.net with the subject line "Do Not Sell or Share My Personal Information." Include your full name, email address, phone number, and state of residence so that we can locate your records. You may also include any other identifiers, such as alternate contact details, that will help us process your request accurately.
+              To exercise your right to opt out, please send an email to contact@familyownedcontractors.com with the subject line "Do Not Sell or Share My Personal Information." Include your full name, email address, phone number, and state of residence so that we can locate your records. You may also include any other identifiers, such as alternate contact details, that will help us process your request accurately.
             </p>
             <Button 
               onClick={handleContactClick}
@@ -80,7 +80,7 @@ const DoNotSell = () => {
           </p>
 
           <p className="text-muted-foreground leading-relaxed">
-            If you have any questions about this process or need assistance, please contact us at contact@sellingproperty.net. We update this page periodically to reflect current practices and compliance requirements.
+            If you have any questions about this process or need assistance, please contact us at contact@familyownedcontractors.com. We update this page periodically to reflect current practices and compliance requirements.
           </p>
         </div>
       </main>
