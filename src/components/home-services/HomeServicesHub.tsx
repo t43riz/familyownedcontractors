@@ -807,13 +807,23 @@ export default function HomeServicesHub() {
   // RENDER FUNCTIONS
   // ============================================================================
 
+  const navigateToService = (service: ServiceOption) => {
+    if (prefilledData) {
+      navigate(buildHandoffUrl(service.path, prefilledData, queryParams));
+    } else {
+      const params = new URLSearchParams(queryParams);
+      const queryString = params.toString();
+      navigate(queryString ? `${service.path}?${queryString}` : service.path);
+    }
+  };
+
   const renderServiceSelection = () => (
     <AnimatedCard>
       <StepHeader
         icon={<Home className="h-8 w-8 text-white" />}
         iconColor="from-primary to-primary/80"
-        title="What Services Do You Need?"
-        subtitle="Select one or more services to get free quotes"
+        title="What Service Do You Need?"
+        subtitle="Select a service to get started"
       />
 
       <div className="space-y-3 mb-6">
@@ -823,34 +833,11 @@ export default function HomeServicesHub() {
             icon={service.icon}
             title={service.title}
             description={service.description}
-            isSelected={selectedServices.includes(service.id)}
-            onClick={() => toggleService(service.id)}
+            isSelected={false}
+            onClick={() => navigateToService(service)}
           />
         ))}
       </div>
-
-      {selectedServices.length > 0 && (
-        <div className="bg-green-50 p-3 rounded-lg border border-green-200 mb-4">
-          <div className="flex items-center gap-2 text-green-800">
-            <CheckCircle className="h-5 w-5" />
-            <span className="font-medium">
-              {selectedServices.length} service{selectedServices.length > 1 ? 's' : ''} selected
-            </span>
-          </div>
-        </div>
-      )}
-
-      <Button
-        onClick={handleContinue}
-        disabled={selectedServices.length === 0}
-        className="w-full py-6 text-lg font-bold bg-brand-navy text-white hover:bg-brand-darkblue shadow-button hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 border-2 border-brand-navy"
-      >
-        {selectedServices.length === 0
-          ? 'Select at Least One Service'
-          : `Get Free Quote${selectedServices.length > 1 ? 's' : ''}`
-        }
-        <ChevronRight className="ml-2 h-5 w-5" />
-      </Button>
 
       <div className="text-center mt-4">
         <p className="text-xs text-muted-foreground">
@@ -991,35 +978,6 @@ export default function HomeServicesHub() {
           <SocialProof serviceName="homeowners" />
           <ComplianceFooter />
 
-          {/* Quick links - only show when not in multi-step mode */}
-          {!isMultiStepMode && (
-            <div className="mt-8">
-              <h2 className="text-center text-sm font-medium text-muted-foreground mb-4">
-                Or go directly to a service:
-              </h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {services.map((service) => (
-                  <Button
-                    key={service.id}
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      if (prefilledData) {
-                        navigate(buildHandoffUrl(service.path, prefilledData, queryParams));
-                      } else {
-                        const params = new URLSearchParams(queryParams);
-                        const queryString = params.toString();
-                        navigate(queryString ? `${service.path}?${queryString}` : service.path);
-                      }
-                    }}
-                    className="text-xs"
-                  >
-                    {service.title}
-                  </Button>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </form>
