@@ -28,7 +28,7 @@ import { submitHomeServicesLead } from '@/services/homeServicesApi';
 // CONSTANTS
 // ============================================================================
 
-const TOTAL_STEPS = 7;  // Reduced: property_type is now hardcoded to Residential
+const TOTAL_STEPS = 8;  // 5 HVAC questions (including skipped property_type) + home_owner + address + contact
 
 const propertyTypeOptions: OptionItem[] = [
   { label: 'Residential', value: 'Residential' },

@@ -195,6 +195,7 @@ export const AddressStep = ({ answers, handleAnswer, onNext }: StepProps) => {
   const [isAddressSelected, setIsAddressSelected] = useState(!!answers.property_address);
   const [showManualEntry, setShowManualEntry] = useState(false);
   const [mapsLoadFailed, setMapsLoadFailed] = useState(false);
+  const [justSelected, setJustSelected] = useState(false);
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -265,6 +266,8 @@ export const AddressStep = ({ answers, handleAnswer, onNext }: StepProps) => {
 
           setAddressInput(place.formatted_address || '');
           setIsAddressSelected(true);
+          setJustSelected(true);
+          setTimeout(() => setJustSelected(false), 400);
         });
       } catch (error) {
         console.error('Error initializing autocomplete:', error);
@@ -428,7 +431,7 @@ export const AddressStep = ({ answers, handleAnswer, onNext }: StepProps) => {
 
       <Button
         onClick={onNext}
-        disabled={!canProceed}
+        disabled={!canProceed || justSelected}
         className="w-full py-6 text-lg font-semibold transition-all duration-200 mt-4"
       >
         Next <ChevronRight className="ml-2 h-5 w-5" />

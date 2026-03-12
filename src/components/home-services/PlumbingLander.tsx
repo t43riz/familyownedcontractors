@@ -292,27 +292,11 @@ export default function PlumbingLander() {
           handleAnswer('step', 4);
           return null;
         }
-        if (!answers.property_address) {
-          return (
-            <AddressStep
-              answers={answers}
-              handleAnswer={handleAnswer}
-              onNext={() => handleAnswer('step', 4)}
-            />
-          );
-        }
-        if (hasContactInfo(prefilledData)) {
-          handleSubmit();
-          return null;
-        }
         return (
-          <ContactInfoStep
+          <AddressStep
             answers={answers}
             handleAnswer={handleAnswer}
-            onSubmit={handleSubmit}
-            isLoading={isLoading}
-            title="Get Your Free Plumbing Quote!"
-            buttonText="Get My Free Quote"
+            onNext={() => handleAnswer('step', 4)}
           />
         );
       case 4:

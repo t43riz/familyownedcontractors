@@ -29,7 +29,7 @@ import { submitHomeServicesLead } from '@/services/homeServicesApi';
 // CONSTANTS (identical form options)
 // ============================================================================
 
-const TOTAL_STEPS = 7;
+const TOTAL_STEPS = 8;
 
 const airTypeOptions = [
   { label: 'Cooling (AC)', value: 'Cooling', icon: <Fan className="h-5 w-5" /> },
@@ -376,6 +376,7 @@ const StepAddress = ({ answers, handleAnswer, onNext }: any) => {
   const [isAddressSelected, setIsAddressSelected] = useState(!!answers.property_address);
   const [showManual, setShowManual] = useState(false);
   const [mapsLoadFailed, setMapsLoadFailed] = useState(false);
+  const [justSelected, setJustSelected] = useState(false);
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [manual, setManual] = useState({ street: '', city: '', state: '', zip: '' });
@@ -413,6 +414,8 @@ const StepAddress = ({ answers, handleAnswer, onNext }: any) => {
           if (zip) handleAnswer('zip_code', zip);
           setAddressInput(place.formatted_address || '');
           setIsAddressSelected(true);
+          setJustSelected(true);
+          setTimeout(() => setJustSelected(false), 400);
         });
       } catch { setMapsLoadFailed(true); }
     };
@@ -470,7 +473,7 @@ const StepAddress = ({ answers, handleAnswer, onNext }: any) => {
           </button>
         </div>
       )}
-      <Button onClick={onNext} disabled={!canProceed}
+      <Button onClick={onNext} disabled={!canProceed || justSelected}
         className="w-full mt-4 py-5 text-base font-bold bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-lg shadow-amber-500/25">
         Continue <ChevronRight className="ml-2 h-4 w-4" />
       </Button>
