@@ -22,6 +22,8 @@ import HVACLanderC from "./components/home-services/HVACLanderC";
 import KitchenLander from "./components/home-services/KitchenLander";
 import PlumbingLander from "./components/home-services/PlumbingLander";
 import ProgressiveServicesLander from "./components/home-services/ProgressiveServicesLander";
+import ThumbtackLander from "./components/home-services/ThumbtackLander";
+import { THUMBTACK_SERVICES } from "./services/thumbtackConfig";
 import { initializeTracking } from "./services/analytics";
 import ScrollToTop from "./components/ScrollToTop";
 
@@ -67,6 +69,13 @@ const App = () => {
             <Route path="/home-services/plumbing" element={<PlumbingLander />} />
             <Route path="/plumbing" element={<PlumbingLander />} />
             <Route path="/home-services-progressive" element={<ProgressiveServicesLander />} />
+            {/* Thumbtack-powered pages */}
+            <Route path="/windows-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.windows} />} />
+            <Route path="/home-services/windows-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.windows} />} />
+            <Route path="/roofing-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.roofing} />} />
+            <Route path="/home-services/roofing-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.roofing} />} />
+            <Route path="/hvac-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.hvac} />} />
+            <Route path="/home-services/hvac-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.hvac} />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/terms" element={<TermsOfService />} />
             <Route path="/do-not-sell" element={<DoNotSell />} />
