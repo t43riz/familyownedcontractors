@@ -148,7 +148,7 @@ const ProCard = ({
 
       {/* CTA */}
       <div className="mt-4 flex items-center justify-between">
-        {business.quote.costUnit && (
+        {business.quote?.costUnit && (
           <span className="text-xs text-muted-foreground">
             {business.quote.startingCost > 0
               ? `From $${business.quote.startingCost}`
