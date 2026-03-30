@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -232,9 +233,23 @@ const ThumbtackRequestFlow = ({
 // ============================================================================
 
 export default function ThumbtackLander({ config }: ThumbtackLanderProps) {
+  const [searchParams] = useSearchParams();
   const [state, setState] = useState<LanderState>('zip-entry');
   const [zipCode, setZipCode] = useState('');
   const [zipError, setZipError] = useState('');
+
+  // Collect all utm_ params from the URL, plus txid as utm_txid
+  const utmParams = useMemo(() => {
+    const params: Record<string, string> = {};
+    searchParams.forEach((value, key) => {
+      if (key === 'txid') {
+        params['utm_txid'] = value;
+      } else if (key.startsWith('utm_')) {
+        params[key] = value;
+      }
+    });
+    return params;
+  }, [searchParams]);
   const [businesses, setBusinesses] = useState<ThumbtackBusiness[]>([]);
   const [selectedBusiness, setSelectedBusiness] = useState<ThumbtackBusiness | null>(null);
   const [searchError, setSearchError] = useState('');
@@ -253,7 +268,7 @@ export default function ThumbtackLander({ config }: ThumbtackLanderProps) {
     setState('loading');
 
     try {
-      const result = await searchThumbtackPros(config.searchQuery, cleaned, 10);
+      const result = await searchThumbtackPros(config.searchQuery, cleaned, 10, utmParams);
       if (result.data && result.data.length > 0) {
         setBusinesses(result.data);
         setState('pro-list');
@@ -265,12 +280,22 @@ export default function ThumbtackLander({ config }: ThumbtackLanderProps) {
       setSearchError('Unable to search for pros. Please try again.');
       setState('zip-entry');
     }
-  }, [zipCode, config.searchQuery]);
+  }, [zipCode, config.searchQuery, utmParams]);
 
   const handleSelectBusiness = useCallback((business: ThumbtackBusiness) => {
+    // Append any extra utm params (like utm_txid) to the iframe URL
+    if (Object.keys(utmParams).length > 0) {
+      const url = new URL(business.widgets.requestFlowURL);
+      for (const [key, value] of Object.entries(utmParams)) {
+        if (!url.searchParams.has(key)) {
+          url.searchParams.set(key, value);
+        }
+      }
+      business = { ...business, widgets: { ...business.widgets, requestFlowURL: url.toString() } };
+    }
     setSelectedBusiness(business);
     setState('request-flow');
-  }, []);
+  }, [utmParams]);
 
   const handleRequestCreated = useCallback(() => {
     setState('success');

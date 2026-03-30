@@ -51,7 +51,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
   try {
     const body: any = await context.request.json();
-    const { searchQuery, zipCode, limit = 10 } = body;
+    const { searchQuery, zipCode, limit = 10, utmParams = {} } = body;
 
     if (!searchQuery || !zipCode) {
       return new Response(
@@ -64,6 +64,13 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     const isProduction = context.env.THUMBTACK_ENV === 'production';
     const apiUrl = isProduction ? PROD_API_URL : STAGING_API_URL;
 
+    // Merge required utm params with any additional ones (e.g. utm_txid)
+    const utmData: Record<string, string> = {
+      utm_source: 'cma-udonis',
+      utm_medium: 'partnership',
+      ...utmParams,
+    };
+
     const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
@@ -73,7 +80,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       body: JSON.stringify({
         searchQuery,
         zipCode,
-        utmData: { utm_source: 'cma-udonis' },
+        utmData,
         limit,
       }),
     });

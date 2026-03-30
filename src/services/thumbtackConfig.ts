@@ -75,12 +75,13 @@ export interface ThumbtackSearchResponse {
 export async function searchThumbtackPros(
   searchQuery: string,
   zipCode: string,
-  limit: number = 10
+  limit: number = 10,
+  utmParams: Record<string, string> = {}
 ): Promise<ThumbtackSearchResponse> {
   const response = await fetch('/api/thumbtack-search', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ searchQuery, zipCode, limit }),
+    body: JSON.stringify({ searchQuery, zipCode, limit, utmParams }),
   });
 
   if (!response.ok) {
