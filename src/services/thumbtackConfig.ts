@@ -13,7 +13,7 @@ export const THUMBTACK_SERVICES: Record<string, ThumbtackServiceConfig> = {
     categoryPk: '166570397309092258',
     searchQuery: 'window installation',
     displayName: 'Window Installation',
-    headline: 'Find Top-Rated Window Pros Near You',
+    headline: 'Compare & Book Top-Rated Window Pros Near You in Minutes',
     subtitle: 'Compare local window specialists with verified reviews',
   },
   roofing: {
@@ -21,7 +21,7 @@ export const THUMBTACK_SERVICES: Record<string, ThumbtackServiceConfig> = {
     categoryPk: '174454027063083482',
     searchQuery: 'roofing',
     displayName: 'Roofing',
-    headline: 'Find Top-Rated Roofers Near You',
+    headline: 'Compare & Book Top-Rated Roofing Pros Near You in Minutes',
     subtitle: 'Compare local roofing contractors with verified reviews',
   },
   hvac: {
@@ -29,7 +29,7 @@ export const THUMBTACK_SERVICES: Record<string, ThumbtackServiceConfig> = {
     categoryPk: '135559407444107609',
     searchQuery: 'hvac',
     displayName: 'HVAC',
-    headline: 'Find Top-Rated HVAC Pros Near You',
+    headline: 'Compare & Book Top-Rated HVAC Pros Near You in Minutes',
     subtitle: 'Compare local heating & cooling specialists with verified reviews',
   },
 };
