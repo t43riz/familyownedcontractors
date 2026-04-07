@@ -186,53 +186,9 @@
     }, true);
   </script>
 
-  <!-- Sparrow DNI JSONP (instant mode) -->
-  <script>
-  (function(){
-    var p='60e43fb0-9500-4205-9a9f-b4a6b3056077',e='https://sparrow-dni.propelsys.workers.dev/dni';
-    try{var c=localStorage.getItem('sparrow_dni_session');
-    if(c){var s=JSON.parse(c);if(s.number&&s.pool_id===p&&new Date(s.expires_at)>new Date()){
-    document.querySelectorAll('[data-sparrow-phone]').forEach(function(el){
-    el.textContent=s.formatted_number;if(el.tagName==='A')el.href='tel:'+s.number;});
-    window.__sparrow_cached=true;
-    addLog(sessionLog, 'session', {
-      'Source': 'localStorage cache',
-      'Number': s.number,
-      'Session': s.session_id ? s.session_id.slice(0,20) + '...' : 'n/a',
-      'Expires': s.expires_at,
-      'Load time': (performance.now() - __dni_start).toFixed(1) + 'ms',
-    });
-    document.getElementById('session-info').textContent = 'Session: ' + s.session_id;
-    }}}catch(x){}
-    window.__sparrow_cb=function(d){if(d.error)return;
-    d.result=d;window.__sparrow_cb.result=d;
-    try{localStorage.setItem('sparrow_dni_session',JSON.stringify({number:d.number,
-    formatted_number:d.formatted,pool_id:p,expires_at:d.expires_at,session_id:d.session_id,
-    visitor_id:d.visitor_id,cache_token:d.cache_token}));}catch(x){}
-    if(!window.__sparrow_cached){document.querySelectorAll('[data-sparrow-phone]').forEach(
-    function(el){el.textContent=d.formatted;if(el.tagName==='A')el.href='tel:'+d.number;});}
-    addLog(sessionLog, 'session', {
-      'Source': 'JSONP (/v2/number)',
-      'Number': d.number,
-      'Formatted': d.formatted,
-      'Session': d.session_id ? d.session_id.slice(0,20) + '...' : 'n/a',
-      'Visitor': d.visitor_id,
-      'Cached': d.cached ? 'Yes (KV hit)' : 'No (new session)',
-      'Load time': (performance.now() - __dni_start).toFixed(1) + 'ms',
-    });
-    document.getElementById('session-info').textContent = 'Number: ' + d.formatted + ' | Session: ' + d.session_id;
-    };
-    var v=localStorage.getItem('sparrow_visitor_id')||'v_'+Date.now().toString(36)+'_'+Math.random().toString(36).substr(2,9);
-    localStorage.setItem('sparrow_visitor_id',v);
-    var s=document.createElement('script');
-    s.src=e+'/v2/number?pool_id='+p+'&visitor_id='+v+'&cb=__sparrow_cb&referrer='+encodeURIComponent(document.referrer)+'&landing_page='+encodeURIComponent(location.href);
-    document.head.appendChild(s);
-  })();
-  </script>
-
-  <!-- Full snippet for click tracking + events -->
-  <script src="https://sparrow-dni.propelsys.workers.dev/dni/sparrow-dni.min.js"
-    data-sparrow-pool="60e43fb0-9500-4205-9a9f-b4a6b3056077" async></script>
+  <!-- DNI Pool ID — the Edge Inject Worker reads this to know which pool to use -->
+  <script data-sparrow-pool="60e43fb0-9500-4205-9a9f-b4a6b3056077"
+    src="https://sparrow-dni.propelsys.workers.dev/dni/sparrow-dni.min.js" async></script>
 
   <!-- KV Verification -->
   <script>
