@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DNI Edge Inject Test | Family Owned Contractors</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0a0a0a; color: #e5e5e5; min-height: 100vh; }
+    .container { max-width: 700px; margin: 0 auto; padding: 40px 20px; }
+    h1 { font-size: 24px; font-weight: 600; margin-bottom: 8px; }
+    .subtitle { color: #888; font-size: 14px; margin-bottom: 32px; }
+
+    /* Hero CTA */
+    .hero { background: linear-gradient(135deg, #0d2818 0%, #0a1f14 100%); border: 1px solid #1a3a28; border-radius: 12px; padding: 32px; margin-bottom: 24px; text-align: center; }
+    .hero h2 { font-size: 20px; margin-bottom: 12px; }
+    .hero .phone { font-size: 32px; font-weight: 700; color: #00D79F; margin: 16px 0; letter-spacing: 1px; }
+    .hero .phone a { color: #00D79F; text-decoration: none; }
+    .hero .phone a:hover { text-decoration: underline; }
+    .hero p { color: #888; font-size: 13px; }
+
+    /* Inline mention */
+    .card { background: #111; border: 1px solid #222; border-radius: 10px; padding: 24px; margin-bottom: 16px; }
+    .card h3 { font-size: 16px; margin-bottom: 8px; }
+    .card p { color: #999; font-size: 14px; line-height: 1.6; }
+    .card .inline-phone { color: #00D79F; font-weight: 600; }
+
+    /* Diagnostics */
+    .diag { background: #0d0d0d; border: 1px solid #1a1a1a; border-radius: 10px; padding: 20px; margin-top: 32px; }
+    .diag h3 { font-size: 14px; color: #666; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; }
+    .check { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #1a1a1a; font-size: 13px; }
+    .check:last-child { border-bottom: none; }
+    .check .icon { font-size: 16px; width: 24px; text-align: center; }
+    .check .label { color: #888; }
+    .check .value { margin-left: auto; color: #e5e5e5; font-family: 'SF Mono', Monaco, monospace; font-size: 12px; }
+    .pass { color: #00D79F; }
+    .fail { color: #e43e5c; }
+    .warn { color: #f59e0b; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>DNI Edge Inject Test</h1>
+    <p class="subtitle">Testing server-side phone number injection via Cloudflare HTMLRewriter</p>
+
+    <!-- Hero CTA with phone number -->
+    <div class="hero">
+      <h2>Get a Free Quote Today</h2>
+      <div class="phone">
+        <a href="tel:+18005550000" data-sparrow-phone>1-800-555-0000</a>
+      </div>
+      <p>Licensed &amp; Insured Contractors Available 24/7</p>
+    </div>
+
+    <!-- Inline phone mentions -->
+    <div class="card">
+      <h3>Call Us Anytime</h3>
+      <p>Our team is available around the clock. Call <span data-sparrow-phone class="inline-phone">1-800-555-0000</span> to speak with a contractor in your area. We serve all 50 states.</p>
+    </div>
+
+    <div class="card">
+      <h3>Emergency Service</h3>
+      <p>For emergencies, call <span data-sparrow-phone class="inline-phone">1-800-555-0000</span> immediately. We have teams on standby ready to help.</p>
+    </div>
+
+    <!-- Diagnostics: checks if edge injection worked -->
+    <div class="diag">
+      <h3>Injection Diagnostics</h3>
+      <div id="checks"></div>
+    </div>
+  </div>
+
+  <!-- DNI Pool ID — the Edge Inject Worker reads this to know which pool to use -->
+  <script data-sparrow-pool="60e43fb0-9500-4205-9a9f-b4a6b3056077"
+    src="https://sparrow-dni.propelsys.workers.dev/dni/sparrow-dni.min.js" async></script>
+
+  <script>
+    // Run diagnostics after page load
+    window.addEventListener('DOMContentLoaded', function() {
+      var checks = document.getElementById('checks');
+
+      function addCheck(pass, label, value) {
+        var div = document.createElement('div');
+        div.className = 'check';
+        div.innerHTML = '<span class="icon">' + (pass === true ? '✅' : pass === false ? '❌' : '⚠️') + '</span>' +
+          '<span class="label">' + label + '</span>' +
+          '<span class="value ' + (pass === true ? 'pass' : pass === false ? 'fail' : 'warn') + '">' + value + '</span>';
+        checks.appendChild(div);
+      }
+
+      // Check 1: Edge injection flag
+      var edgeInjected = window.__sparrow_edge_injected === true;
+      addCheck(edgeInjected, 'Edge Inject Active', edgeInjected ? 'Yes — numbers in HTML' : 'No — using client-side swap');
+
+      // Check 2: data-sparrow-injected present (means Edge Inject replaced the elements)
+      var injectedEls = document.querySelectorAll('[data-sparrow-injected]');
+      addCheck(injectedEls.length > 0, 'Elements Injected', injectedEls.length > 0 ? injectedEls.length + ' elements' : 'None found');
+
+      // Check 3: data-sparrow-phone removed (Edge Inject removes it after swapping)
+      var unswapped = document.querySelectorAll('[data-sparrow-phone]');
+      addCheck(unswapped.length === 0, 'Original Markers Removed', unswapped.length === 0 ? 'All removed' : unswapped.length + ' still present');
+
+      // Check 4: Phone number value
+      var numberEl = document.querySelector('[data-sparrow-number]');
+      var number = numberEl ? numberEl.getAttribute('data-sparrow-number') : null;
+      addCheck(number && number !== '+18005550000', 'Phone Number', number || 'Not swapped');
+
+      // Check 5: tel: link updated
+      var telLink = document.querySelector('a[href^="tel:"]');
+      var linkUpdated = telLink && !telLink.href.includes('+18005550000');
+      addCheck(linkUpdated, 'tel: Link', telLink ? telLink.href.replace('tel:', '') : 'Not found');
+
+      // Check 6: Session data injected
+      var cbResult = window.__sparrow_cb && window.__sparrow_cb.result;
+      addCheck(!!cbResult, 'Session Data', cbResult ? 'ID: ' + cbResult.session_id.slice(0, 12) + '...' : 'Not found');
+
+      // Check 7: Visitor ID
+      var vid = null;
+      try { vid = localStorage.getItem('sparrow_visitor_id'); } catch(e) {}
+      addCheck(!!vid, 'Visitor ID', vid ? vid.slice(0, 20) + '...' : 'Not set');
+
+      // Summary
+      var total = checks.querySelectorAll('.check').length;
+      var passed = checks.querySelectorAll('.pass').length;
+      if (edgeInjected) {
+        addCheck(true, 'Mode', '⚡ Edge Inject (0ms server-side swap)');
+      } else if (cbResult) {
+        addCheck(null, 'Mode', '📡 JSONP client-side swap (Edge Inject not active)');
+      } else {
+        addCheck(null, 'Mode', '⏳ Waiting for snippet to load...');
+        // Re-check after snippet loads
+        setTimeout(function() {
+          document.getElementById('checks').innerHTML = '';
+          window.dispatchEvent(new Event('DOMContentLoaded'));
+        }, 2000);
+      }
+    });
+  </script>
+</body>
+</html>
