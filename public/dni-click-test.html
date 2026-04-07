@@ -150,7 +150,7 @@
       }
 
       if (isPhone) {
-        e.preventDefault(); // Don't actually dial
+        // Let the phone dialog open naturally — don't preventDefault
         clickCount++;
 
         var number = target.getAttribute('data-sparrow-number') || target.textContent;
@@ -186,9 +186,76 @@
     }, true);
   </script>
 
-  <!-- DNI Pool ID — the Edge Inject Worker reads this to know which pool to use -->
-  <script data-sparrow-pool="60e43fb0-9500-4205-9a9f-b4a6b3056077"
-    src="https://sparrow-dni.propelsys.workers.dev/dni/sparrow-dni.min.js" async></script>
+  <!-- Detect Edge Inject or fall back to JSONP -->
+  <script>
+  (function(){
+    var p='60e43fb0-9500-4205-9a9f-b4a6b3056077',e='https://sparrow-dni.propelsys.workers.dev/dni';
+
+    // Check if Edge Inject already swapped numbers server-side
+    if (window.__sparrow_edge_injected) {
+      var cbResult = window.__sparrow_cb && window.__sparrow_cb.result;
+      addLog(sessionLog, 'session', {
+        'Source': '⚡ Edge Inject (0ms)',
+        'Number': cbResult ? cbResult.number : document.querySelector('[data-sparrow-number]')?.getAttribute('data-sparrow-number') || 'unknown',
+        'Session': cbResult ? cbResult.session_id : 'edge-injected',
+        'Visitor': cbResult ? cbResult.visitor_id : localStorage.getItem('sparrow_visitor_id') || 'unknown',
+        'Load time': (performance.now() - __dni_start).toFixed(1) + 'ms',
+        'Mode': 'Server-side HTML rewrite — number was in the raw HTML',
+      });
+      document.getElementById('session-info').textContent = '⚡ Edge Inject | Number: ' + (cbResult ? cbResult.number : 'injected');
+      return; // Skip JSONP — number already in HTML
+    }
+
+    // Try localStorage cache
+    try{var c=localStorage.getItem('sparrow_dni_session');
+    if(c){var s=JSON.parse(c);if(s.number&&s.pool_id===p&&new Date(s.expires_at)>new Date()){
+    document.querySelectorAll('[data-sparrow-phone]').forEach(function(el){
+    el.textContent=s.formatted_number;if(el.tagName==='A')el.href='tel:'+s.number;});
+    window.__sparrow_cached=true;
+    addLog(sessionLog, 'session', {
+      'Source': '💾 localStorage cache',
+      'Number': s.number,
+      'Session': s.session_id ? s.session_id.slice(0,20) + '...' : 'n/a',
+      'Expires': s.expires_at,
+      'Load time': (performance.now() - __dni_start).toFixed(1) + 'ms',
+    });
+    document.getElementById('session-info').textContent = 'Session: ' + s.session_id;
+    }}}catch(x){}
+
+    // JSONP fallback for new visitors
+    window.__sparrow_cb=function(d){if(d.error){
+      addLog(sessionLog, 'session', { 'Error': d.error });
+      return;
+    }
+    d.result=d;window.__sparrow_cb.result=d;
+    try{localStorage.setItem('sparrow_dni_session',JSON.stringify({number:d.number,
+    formatted_number:d.formatted,pool_id:p,expires_at:d.expires_at,session_id:d.session_id,
+    visitor_id:d.visitor_id,cache_token:d.cache_token}));}catch(x){}
+    if(!window.__sparrow_cached){document.querySelectorAll('[data-sparrow-phone]').forEach(
+    function(el){el.textContent=d.formatted;if(el.tagName==='A')el.href='tel:'+d.number;});}
+    addLog(sessionLog, 'session', {
+      'Source': '📡 JSONP (/v2/number)',
+      'Number': d.number,
+      'Formatted': d.formatted,
+      'Session': d.session_id ? d.session_id.slice(0,20) + '...' : 'n/a',
+      'Visitor': d.visitor_id,
+      'Cached': d.cached ? 'Yes (KV hit)' : 'No (new session)',
+      'Load time': (performance.now() - __dni_start).toFixed(1) + 'ms',
+    });
+    document.getElementById('session-info').textContent = 'Number: ' + d.formatted + ' | Session: ' + d.session_id;
+    };
+    var v=localStorage.getItem('sparrow_visitor_id')||'v_'+Date.now().toString(36)+'_'+Math.random().toString(36).substr(2,9);
+    localStorage.setItem('sparrow_visitor_id',v);
+    var s=document.createElement('script');
+    s.src=e+'/v2/number?pool_id='+p+'&visitor_id='+v+'&cb=__sparrow_cb&referrer='+encodeURIComponent(document.referrer)+'&landing_page='+encodeURIComponent(location.href);
+    document.head.appendChild(s);
+  })();
+  </script>
+
+  <!-- Full snippet for click tracking + events + session release -->
+  <!-- This is needed even with Edge Inject — it handles click tracking -->
+  <script src="https://sparrow-dni.propelsys.workers.dev/dni/sparrow-dni.min.js"
+    data-sparrow-pool="60e43fb0-9500-4205-9a9f-b4a6b3056077" async></script>
 
   <!-- KV Verification -->
   <script>
@@ -197,8 +264,6 @@
       resultDiv.style.display = 'block';
       resultDiv.textContent = 'Checking KV...';
 
-      // We can't read KV directly from the client, but we can check
-      // the DNI event endpoint for recent events
       var sessionData = null;
       try {
         sessionData = JSON.parse(localStorage.getItem('sparrow_dni_session'));
@@ -209,7 +274,58 @@
         clickData = JSON.parse(localStorage.getItem('sparrow_last_click'));
       } catch(e) {}
 
-      var result = '=== CLIENT-SIDE VERIFICATION ===\n\n';
+      // Also check Edge Inject session data
+      if (!sessionData && window.__sparrow_cb && window.__sparrow_cb.result) {
+        var r = window.__sparrow_cb.result;
+        sessionData = { number: r.number, session_id: r.session_id, visitor_id: r.visitor_id };
+      }
+
+      // Call the server-side click-check endpoint
+      var number = sessionData ? sessionData.number : null;
+      if (number) {
+        fetch('https://sparrow-dni.propelsys.workers.dev/dni/v2/click-check?number=' + encodeURIComponent(number))
+          .then(function(r) { return r.json(); })
+          .then(function(data) {
+            showVerifyResult(data, sessionData, clickData);
+          })
+          .catch(function(e) {
+            showVerifyResult({ error: e.message }, sessionData, clickData);
+          });
+      } else {
+        showVerifyResult(null, sessionData, clickData);
+      }
+    }
+
+    function showVerifyResult(serverData, sessionData, clickData) {
+      var resultDiv = document.getElementById('kv-result');
+
+      var result = '=== SERVER-SIDE CLICK CHECK ===\n\n';
+
+      if (serverData && serverData.found) {
+        result += '✅ Click found in KV!\n';
+        result += '  click_id:     ' + serverData.click_id + '\n';
+        result += '  visitor_id:   ' + serverData.visitor_id + '\n';
+        result += '  page_url:     ' + serverData.page_url + '\n';
+        result += '  clicked_at:   ' + serverData.clicked_at + '\n';
+        result += '  age:          ' + serverData.age_seconds + 's\n';
+        result += '  expires_in:   ' + serverData.expires_in_seconds + 's\n';
+        result += '\n  → When a call arrives on ' + serverData.number + ',\n';
+        result += '    it will be matched to this click.\n';
+      } else if (serverData && serverData.found === false) {
+        result += '❌ No click in KV for ' + (sessionData ? sessionData.number : 'unknown number') + '\n';
+        result += '  ' + (serverData.message || '') + '\n';
+        result += '\n  Possible reasons:\n';
+        result += '  - Click beacon hasn\'t arrived yet (try again in 1s)\n';
+        result += '  - Click expired (>5 min TTL)\n';
+        result += '  - Snippet not loaded (check Beacon log below)\n';
+      } else if (serverData && serverData.error) {
+        result += '⚠️ Error: ' + serverData.error + '\n';
+      } else {
+        result += '⚠️ No session number available to check.\n';
+        result += '  Wait for the number to load first.\n';
+      }
+
+      result += '\n=== CLIENT-SIDE DATA ===\n\n';
 
       if (clickData) {
         result += 'Last Click (localStorage):\n';
