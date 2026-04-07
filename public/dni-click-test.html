@@ -159,18 +159,23 @@
     }, true);
 
     // Detect which mode loaded the number
-    window.addEventListener('DOMContentLoaded', function() {
+    function detectMode() {
       if (window.__sparrow_edge_injected) {
+        var cbResult = window.__sparrow_cb && window.__sparrow_cb.result;
         var num = document.querySelector('[data-sparrow-number]');
+        var number = (cbResult && cbResult.number) || (num && num.getAttribute('data-sparrow-number')) || 'pre-loaded';
+        var formatted = (cbResult && cbResult.formatted) || number;
+
         addLog(sessionLog, 'session', {
-          'Mode': '⚡ Edge Inject (0ms)',
-          'Number': num ? num.getAttribute('data-sparrow-number') : 'injected',
+          'Mode': '⚡ Edge Inject (session pre-loaded)',
+          'Number': formatted,
+          'Session': cbResult ? cbResult.session_id : 'edge-injected',
+          'Visitor': cbResult ? cbResult.visitor_id : localStorage.getItem('sparrow_visitor_id') || 'unknown',
           'Load time': (performance.now() - __dni_start).toFixed(1) + 'ms',
-          'How': 'Number was in the HTML from the server — no JS swap needed',
+          'How': num ? 'HTML rewrite (static)' : 'Session data injected (SPA — snippet uses it)',
         });
-        document.getElementById('session-info').textContent = '⚡ Edge Inject active';
+        document.getElementById('session-info').textContent = '⚡ Edge Inject | ' + formatted;
       } else {
-        // Check if snippet will swap via JSONP
         addLog(sessionLog, 'session', {
           'Mode': '📡 Client-side (snippet)',
           'Status': 'Waiting for snippet to load and swap numbers...',
@@ -189,7 +194,14 @@
           }
         }, 3000);
       }
-    });
+    }
+
+    // Run detection — try immediately and on DOMContentLoaded
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', detectMode);
+    } else {
+      detectMode();
+    }
 
     // KV verification
     function verifyKV() {
