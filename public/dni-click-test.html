@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DNI Click Tracking Test</title>
-  <link rel="preconnect" href="https://sparrow-dni.propelsys.workers.dev" crossorigin>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0a0a0a; color: #e5e5e5; min-height: 100vh; }
@@ -25,51 +24,49 @@
     .log-entry .label { color: #888; display: inline-block; width: 120px; }
     .log-entry .value { color: #00D79F; }
     .empty { color: #444; font-style: italic; padding: 20px; text-align: center; }
+    .verify-btn { background: #1a3a28; border: 1px solid #2a5a38; color: #00D79F; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 13px; margin-top: 12px; }
+    .verify-btn:hover { background: #2a5a38; }
+    .kv-result { margin-top: 12px; padding: 12px; background: #0a0a0a; border-radius: 6px; font-family: monospace; font-size: 11px; white-space: pre-wrap; color: #999; display: none; }
     .instructions { background: #0d0d0d; border: 1px solid #1a1a1a; border-radius: 10px; padding: 20px; margin-bottom: 24px; }
     .instructions h3 { font-size: 14px; margin-bottom: 8px; }
     .instructions ol { padding-left: 20px; color: #999; font-size: 13px; line-height: 1.8; }
     .instructions code { background: #222; padding: 2px 6px; border-radius: 4px; color: #00D79F; font-size: 12px; }
-    .verify-btn { background: #1a3a28; border: 1px solid #2a5a38; color: #00D79F; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 13px; margin-top: 12px; }
-    .verify-btn:hover { background: #2a5a38; }
-    .kv-result { margin-top: 12px; padding: 12px; background: #0a0a0a; border-radius: 6px; font-family: monospace; font-size: 11px; white-space: pre-wrap; color: #999; display: none; }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Click-to-Call Tracking Test</h1>
-    <p class="subtitle">Click the phone number below, then verify the click was captured</p>
+    <p class="subtitle">Edge Inject swaps the number server-side. Click it to test tracking.</p>
 
     <div class="instructions">
       <h3>How to test:</h3>
       <ol>
-        <li>Wait for the number to load (JSONP swap)</li>
-        <li><strong>Click the phone number</strong> below (cancel the actual call)</li>
+        <li>The number should already be swapped (Edge Inject — check Session panel)</li>
+        <li><strong>Click the phone number</strong> — your phone dialog will open (cancel if you don't want to call)</li>
         <li>Check the "Click Events" log — you should see the click captured</li>
-        <li>Click "Verify in KV" to check that the click was stored server-side</li>
-        <li>If you make a real call to this number, it will match to this click</li>
+        <li>Click "Verify Click in KV" to confirm the server received the click</li>
       </ol>
     </div>
 
-    <!-- Phone number CTA -->
+    <!-- Phone number CTA — Edge Inject replaces these server-side -->
     <div class="cta">
       <p>Click the number to test tracking:</p>
       <div class="phone">
-        <a href="tel:+18005550000" data-sparrow-phone id="phone-link">1-800-555-0000</a>
+        <a href="tel:+18005550000" data-sparrow-phone>1-800-555-0000</a>
       </div>
-      <p id="session-info" style="margin-top: 8px;">Loading session...</p>
+      <p id="session-info" style="margin-top: 8px;">Checking injection mode...</p>
     </div>
 
     <!-- Session Log -->
     <div class="log-section">
       <h3>Session</h3>
-      <div id="session-log"><div class="empty">Waiting for session...</div></div>
+      <div id="session-log"><div class="empty">Checking...</div></div>
     </div>
 
     <!-- Click Events Log -->
     <div class="log-section">
       <h3>Click Events</h3>
       <div id="click-log"><div class="empty">No clicks yet — click the phone number above</div></div>
-
       <button class="verify-btn" id="verify-btn" onclick="verifyKV()" style="display:none">
         Verify Click in KV (server-side)
       </button>
@@ -83,13 +80,15 @@
     </div>
   </div>
 
-  <!-- DNI Script -->
+  <!-- Pool ID for Edge Inject Worker to detect -->
+  <script data-sparrow-pool="60e43fb0-9500-4205-9a9f-b4a6b3056077"
+    src="https://sparrow-dni.propelsys.workers.dev/dni/sparrow-dni.min.js" async></script>
+
   <script>
     var __dni_start = performance.now();
     var clickLog = document.getElementById('click-log');
     var sessionLog = document.getElementById('session-log');
     var beaconLog = document.getElementById('beacon-log');
-    var lastClickNumber = null;
     var clickCount = 0;
 
     function addLog(container, cls, entries) {
@@ -107,67 +106,42 @@
     // Intercept sendBeacon to log outgoing requests
     var origBeacon = navigator.sendBeacon;
     navigator.sendBeacon = function(url, data) {
-      var body = '';
-      try {
-        if (data instanceof Blob) {
-          // Can't read blob synchronously, just log URL
-          body = '(blob payload)';
-        } else {
-          body = String(data);
-        }
-      } catch(e) {}
-
       if (url.indexOf('/v2/click') > -1) {
         addLog(beaconLog, 'beacon', {
-          'Type': 'Click Beacon (/v2/click)',
-          'URL': url,
+          'Type': '📤 Click Beacon (/v2/click)',
           'Time': new Date().toISOString(),
         });
       } else if (url.indexOf('/event') > -1) {
         addLog(beaconLog, 'beacon', {
-          'Type': 'Event Beacon (/event)',
-          'URL': url,
+          'Type': '📤 Event Beacon (/event)',
           'Time': new Date().toISOString(),
         });
       }
-
       return origBeacon.call(navigator, url, data);
     };
 
-    // Intercept clicks on phone elements
+    // Track clicks on phone elements
     document.addEventListener('click', function(e) {
       var target = e.target;
       var isPhone = false;
-
-      if (target.tagName === 'A' && target.href && target.href.indexOf('tel:') === 0) {
-        isPhone = true;
-      }
-      if (target.hasAttribute && target.hasAttribute('data-sparrow-phone')) {
-        isPhone = true;
-      }
-      if (target.hasAttribute && target.hasAttribute('data-sparrow-number')) {
-        isPhone = true;
+      if (target.tagName === 'A' && target.href && target.href.indexOf('tel:') === 0) isPhone = true;
+      if (target.hasAttribute && (target.hasAttribute('data-sparrow-phone') || target.hasAttribute('data-sparrow-number') || target.hasAttribute('data-sparrow-injected'))) isPhone = true;
+      if (!isPhone && target.parentElement) {
+        if (target.parentElement.tagName === 'A' && target.parentElement.href && target.parentElement.href.indexOf('tel:') === 0) isPhone = true;
       }
 
       if (isPhone) {
-        // Let the phone dialog open naturally — don't preventDefault
         clickCount++;
-
-        var number = target.getAttribute('data-sparrow-number') || target.textContent;
-        lastClickNumber = number;
-
+        var number = target.getAttribute('data-sparrow-number') || target.textContent.trim();
         addLog(clickLog, 'click', {
           'Click #': clickCount,
           'Number': number,
           'Element': '<' + target.tagName.toLowerCase() + '>',
-          'href': target.href || 'none',
           'Time': new Date().toISOString(),
-          'localStorage': localStorage.getItem('sparrow_last_click') ? 'Updated' : 'Not set',
         });
-
         document.getElementById('verify-btn').style.display = 'block';
 
-        // Check localStorage for the click data after a short delay
+        // Check localStorage after snippet processes the click
         setTimeout(function() {
           var stored = localStorage.getItem('sparrow_last_click');
           if (stored) {
@@ -177,200 +151,98 @@
                 'Stored click_id': data.click_id,
                 'Stored number': data.number,
                 'Stored page': data.page_url,
-                'Stored at': data.clicked_at,
               });
             } catch(e) {}
           }
-        }, 200);
+        }, 500);
       }
     }, true);
-  </script>
 
-  <!-- Detect Edge Inject or fall back to JSONP -->
-  <script>
-  (function(){
-    var p='60e43fb0-9500-4205-9a9f-b4a6b3056077',e='https://sparrow-dni.propelsys.workers.dev/dni';
+    // Detect which mode loaded the number
+    window.addEventListener('DOMContentLoaded', function() {
+      if (window.__sparrow_edge_injected) {
+        var num = document.querySelector('[data-sparrow-number]');
+        addLog(sessionLog, 'session', {
+          'Mode': '⚡ Edge Inject (0ms)',
+          'Number': num ? num.getAttribute('data-sparrow-number') : 'injected',
+          'Load time': (performance.now() - __dni_start).toFixed(1) + 'ms',
+          'How': 'Number was in the HTML from the server — no JS swap needed',
+        });
+        document.getElementById('session-info').textContent = '⚡ Edge Inject active';
+      } else {
+        // Check if snippet will swap via JSONP
+        addLog(sessionLog, 'session', {
+          'Mode': '📡 Client-side (snippet)',
+          'Status': 'Waiting for snippet to load and swap numbers...',
+          'Load time': (performance.now() - __dni_start).toFixed(1) + 'ms',
+        });
+        document.getElementById('session-info').textContent = 'Using client-side snippet (Edge Inject not active)';
 
-    // Check if Edge Inject already swapped numbers server-side
-    if (window.__sparrow_edge_injected) {
-      var cbResult = window.__sparrow_cb && window.__sparrow_cb.result;
-      addLog(sessionLog, 'session', {
-        'Source': '⚡ Edge Inject (0ms)',
-        'Number': cbResult ? cbResult.number : document.querySelector('[data-sparrow-number]')?.getAttribute('data-sparrow-number') || 'unknown',
-        'Session': cbResult ? cbResult.session_id : 'edge-injected',
-        'Visitor': cbResult ? cbResult.visitor_id : localStorage.getItem('sparrow_visitor_id') || 'unknown',
-        'Load time': (performance.now() - __dni_start).toFixed(1) + 'ms',
-        'Mode': 'Server-side HTML rewrite — number was in the raw HTML',
-      });
-      document.getElementById('session-info').textContent = '⚡ Edge Inject | Number: ' + (cbResult ? cbResult.number : 'injected');
-      return; // Skip JSONP — number already in HTML
-    }
-
-    // Try localStorage cache
-    try{var c=localStorage.getItem('sparrow_dni_session');
-    if(c){var s=JSON.parse(c);if(s.number&&s.pool_id===p&&new Date(s.expires_at)>new Date()){
-    document.querySelectorAll('[data-sparrow-phone]').forEach(function(el){
-    el.textContent=s.formatted_number;if(el.tagName==='A')el.href='tel:'+s.number;});
-    window.__sparrow_cached=true;
-    addLog(sessionLog, 'session', {
-      'Source': '💾 localStorage cache',
-      'Number': s.number,
-      'Session': s.session_id ? s.session_id.slice(0,20) + '...' : 'n/a',
-      'Expires': s.expires_at,
-      'Load time': (performance.now() - __dni_start).toFixed(1) + 'ms',
+        // Re-check after snippet loads
+        setTimeout(function() {
+          var num = document.querySelector('[data-sparrow-number]') || document.querySelector('[data-sparrow-phone]');
+          if (num) {
+            addLog(sessionLog, 'session', {
+              'Snippet loaded': 'Yes',
+              'Number': num.textContent.trim(),
+            });
+          }
+        }, 3000);
+      }
     });
-    document.getElementById('session-info').textContent = 'Session: ' + s.session_id;
-    }}}catch(x){}
 
-    // JSONP fallback for new visitors
-    window.__sparrow_cb=function(d){if(d.error){
-      addLog(sessionLog, 'session', { 'Error': d.error });
-      return;
-    }
-    d.result=d;window.__sparrow_cb.result=d;
-    try{localStorage.setItem('sparrow_dni_session',JSON.stringify({number:d.number,
-    formatted_number:d.formatted,pool_id:p,expires_at:d.expires_at,session_id:d.session_id,
-    visitor_id:d.visitor_id,cache_token:d.cache_token}));}catch(x){}
-    if(!window.__sparrow_cached){document.querySelectorAll('[data-sparrow-phone]').forEach(
-    function(el){el.textContent=d.formatted;if(el.tagName==='A')el.href='tel:'+d.number;});}
-    addLog(sessionLog, 'session', {
-      'Source': '📡 JSONP (/v2/number)',
-      'Number': d.number,
-      'Formatted': d.formatted,
-      'Session': d.session_id ? d.session_id.slice(0,20) + '...' : 'n/a',
-      'Visitor': d.visitor_id,
-      'Cached': d.cached ? 'Yes (KV hit)' : 'No (new session)',
-      'Load time': (performance.now() - __dni_start).toFixed(1) + 'ms',
-    });
-    document.getElementById('session-info').textContent = 'Number: ' + d.formatted + ' | Session: ' + d.session_id;
-    };
-    var v=localStorage.getItem('sparrow_visitor_id')||'v_'+Date.now().toString(36)+'_'+Math.random().toString(36).substr(2,9);
-    localStorage.setItem('sparrow_visitor_id',v);
-    var s=document.createElement('script');
-    s.src=e+'/v2/number?pool_id='+p+'&visitor_id='+v+'&cb=__sparrow_cb&referrer='+encodeURIComponent(document.referrer)+'&landing_page='+encodeURIComponent(location.href);
-    document.head.appendChild(s);
-  })();
-  </script>
-
-  <!-- Full snippet for click tracking + events + session release -->
-  <!-- This is needed even with Edge Inject — it handles click tracking -->
-  <script src="https://sparrow-dni.propelsys.workers.dev/dni/sparrow-dni.min.js"
-    data-sparrow-pool="60e43fb0-9500-4205-9a9f-b4a6b3056077" async></script>
-
-  <!-- KV Verification -->
-  <script>
+    // KV verification
     function verifyKV() {
       var resultDiv = document.getElementById('kv-result');
       resultDiv.style.display = 'block';
-      resultDiv.textContent = 'Checking KV...';
+      resultDiv.textContent = 'Checking server...';
 
-      var sessionData = null;
-      try {
-        sessionData = JSON.parse(localStorage.getItem('sparrow_dni_session'));
-      } catch(e) {}
-
-      var clickData = null;
-      try {
-        clickData = JSON.parse(localStorage.getItem('sparrow_last_click'));
-      } catch(e) {}
-
-      // Also check Edge Inject session data
-      if (!sessionData && window.__sparrow_cb && window.__sparrow_cb.result) {
-        var r = window.__sparrow_cb.result;
-        sessionData = { number: r.number, session_id: r.session_id, visitor_id: r.visitor_id };
+      // Get number from the page
+      var numEl = document.querySelector('[data-sparrow-number]') || document.querySelector('a[href^="tel:"]');
+      var number = null;
+      if (numEl) {
+        number = numEl.getAttribute('data-sparrow-number') || numEl.href.replace('tel:', '');
+      }
+      // Also try localStorage
+      if (!number) {
+        try {
+          var s = JSON.parse(localStorage.getItem('sparrow_dni_session'));
+          if (s) number = s.number;
+        } catch(e) {}
       }
 
-      // Call the server-side click-check endpoint
-      var number = sessionData ? sessionData.number : null;
-      if (number) {
-        fetch('https://sparrow-dni.propelsys.workers.dev/dni/v2/click-check?number=' + encodeURIComponent(number))
-          .then(function(r) { return r.json(); })
-          .then(function(data) {
-            showVerifyResult(data, sessionData, clickData);
-          })
-          .catch(function(e) {
-            showVerifyResult({ error: e.message }, sessionData, clickData);
-          });
-      } else {
-        showVerifyResult(null, sessionData, clickData);
-      }
-    }
-
-    function showVerifyResult(serverData, sessionData, clickData) {
-      var resultDiv = document.getElementById('kv-result');
-
-      var result = '=== SERVER-SIDE CLICK CHECK ===\n\n';
-
-      if (serverData && serverData.found) {
-        result += '✅ Click found in KV!\n';
-        result += '  click_id:     ' + serverData.click_id + '\n';
-        result += '  visitor_id:   ' + serverData.visitor_id + '\n';
-        result += '  page_url:     ' + serverData.page_url + '\n';
-        result += '  clicked_at:   ' + serverData.clicked_at + '\n';
-        result += '  age:          ' + serverData.age_seconds + 's\n';
-        result += '  expires_in:   ' + serverData.expires_in_seconds + 's\n';
-        result += '\n  → When a call arrives on ' + serverData.number + ',\n';
-        result += '    it will be matched to this click.\n';
-      } else if (serverData && serverData.found === false) {
-        result += '❌ No click in KV for ' + (sessionData ? sessionData.number : 'unknown number') + '\n';
-        result += '  ' + (serverData.message || '') + '\n';
-        result += '\n  Possible reasons:\n';
-        result += '  - Click beacon hasn\'t arrived yet (try again in 1s)\n';
-        result += '  - Click expired (>5 min TTL)\n';
-        result += '  - Snippet not loaded (check Beacon log below)\n';
-      } else if (serverData && serverData.error) {
-        result += '⚠️ Error: ' + serverData.error + '\n';
-      } else {
-        result += '⚠️ No session number available to check.\n';
-        result += '  Wait for the number to load first.\n';
+      if (!number) {
+        resultDiv.textContent = '⚠️ No number found on page. Wait for number to load.';
+        return;
       }
 
-      result += '\n=== CLIENT-SIDE DATA ===\n\n';
-
-      if (clickData) {
-        result += 'Last Click (localStorage):\n';
-        result += '  click_id:   ' + clickData.click_id + '\n';
-        result += '  number:     ' + clickData.number + '\n';
-        result += '  clicked_at: ' + clickData.clicked_at + '\n';
-        result += '  page_url:   ' + clickData.page_url + '\n';
-        result += '  visitor_id: ' + clickData.visitor_id + '\n';
-        result += '  session_id: ' + clickData.session_id + '\n';
-      } else {
-        result += 'No click data in localStorage.\n';
-        result += 'Click the phone number first!\n';
-      }
-
-      result += '\n=== SESSION DATA ===\n\n';
-      if (sessionData) {
-        result += '  number:     ' + sessionData.number + '\n';
-        result += '  session_id: ' + sessionData.session_id + '\n';
-        result += '  visitor_id: ' + sessionData.visitor_id + '\n';
-        result += '  expires_at: ' + sessionData.expires_at + '\n';
-      } else {
-        result += '  No session data.\n';
-      }
-
-      result += '\n=== SERVER-SIDE VERIFICATION ===\n\n';
-      result += 'To verify the click was stored in KV, run:\n\n';
-
-      if (sessionData && sessionData.number) {
-        result += '  curl "https://sparrow-dni.propelsys.workers.dev/dni/v2/click-check?number=' + encodeURIComponent(sessionData.number) + '"\n';
-      }
-      result += '\nOr check KV directly:\n\n';
-      if (sessionData && sessionData.number) {
-        result += '  npx wrangler kv key get --namespace-id=d549126e32c142119a84ec6137914b72 "dni:click:' + sessionData.number + '"\n';
-      }
-
-      result += '\n=== WHAT HAPPENS ON A REAL CALL ===\n\n';
-      result += 'When someone calls ' + (sessionData ? sessionData.number : 'the DNI number') + ':\n';
-      result += '1. Webhook handler looks up the DNI session by number\n';
-      result += '2. Checks KV for recent click: dni:click:{number}\n';
-      result += '3. If click found (within 5 min), enriches call attribution:\n';
-      result += '   - click_id, click_page_url, click_page_title\n';
-      result += '   - click_to_call_seconds (time from click to call)\n';
-      result += '4. If click visitor differs from session, uses click\'s session\n';
-
-      resultDiv.textContent = result;
+      fetch('https://sparrow-dni.propelsys.workers.dev/dni/v2/click-check?number=' + encodeURIComponent(number))
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (data.found) {
+            resultDiv.textContent =
+              '✅ Click found in server KV!\n\n' +
+              '  click_id:    ' + data.click_id + '\n' +
+              '  visitor_id:  ' + data.visitor_id + '\n' +
+              '  page_url:    ' + data.page_url + '\n' +
+              '  clicked_at:  ' + data.clicked_at + '\n' +
+              '  age:         ' + data.age_seconds + 's ago\n' +
+              '  expires_in:  ' + data.expires_in_seconds + 's\n' +
+              '\n→ If you call ' + number + ' now, the call will\n' +
+              '  be matched to this exact click event.';
+          } else {
+            resultDiv.textContent =
+              '❌ No click found for ' + number + '\n\n' +
+              '  ' + (data.message || '') + '\n\n' +
+              'Possible reasons:\n' +
+              '  - Snippet hasn\'t loaded yet (check Beacon log)\n' +
+              '  - Click beacon is still in flight (try again in 1s)\n' +
+              '  - Click expired (5 min TTL)';
+          }
+        })
+        .catch(function(e) {
+          resultDiv.textContent = '⚠️ Error: ' + e.message;
+        });
     }
   </script>
 </body>
