@@ -64,7 +64,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     const isProduction = context.env.THUMBTACK_ENV === 'production';
     const apiUrl = isProduction ? PROD_API_URL : STAGING_API_URL;
 
-    // Merge required utm params with any additional ones (e.g. utm_txid)
+    // Merge required utm params with any additional ones (e.g. utm_subid for txid)
     const utmData: Record<string, string> = {
       utm_source: 'cma-udonis',
       utm_medium: 'partnership',

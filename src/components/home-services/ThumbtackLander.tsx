@@ -243,7 +243,7 @@ export default function ThumbtackLander({ config }: ThumbtackLanderProps) {
     const params: Record<string, string> = {};
     searchParams.forEach((value, key) => {
       if (key === 'txid') {
-        params['utm_txid'] = value;
+        params['utm_subid'] = value;
       } else if (key.startsWith('utm_')) {
         params[key] = value;
       }
