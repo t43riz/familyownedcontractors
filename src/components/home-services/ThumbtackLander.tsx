@@ -171,34 +171,51 @@ const ProCard = ({
 // THUMBTACK REQUEST FLOW IFRAME
 // ============================================================================
 
+const firePostback = async (transactionId: string) => {
+  try {
+    await fetch('/api/tt-postback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ transaction_id: transactionId }),
+    });
+  } catch (e) {
+    console.error('Postback failed:', e);
+  }
+};
+
 const ThumbtackRequestFlow = ({
   url,
   onRequestCreated,
   onClose,
+  transactionId,
 }: {
   url: string;
-  onRequestCreated: () => void;
+  onRequestCreated: (eventData?: any) => void;
   onClose: () => void;
+  transactionId?: string;
 }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      // Only trust Thumbtack origins
       if (!event.origin.includes('thumbtack.com')) return;
 
-      const data = typeof event.data === 'string' ? event.data : event.data?.type;
+      const eventType = typeof event.data === 'string' ? event.data : event.data?.type;
+      const eventData = typeof event.data === 'object' ? event.data?.data : undefined;
 
-      if (data === 'THUMBTACK_RF_REQUEST_CREATED') {
-        onRequestCreated();
-      } else if (data === 'THUMBTACK_RF_CLOSE') {
+      if (eventType === 'THUMBTACK_RF_REQUEST_CREATED') {
+        if (transactionId) {
+          firePostback(transactionId);
+        }
+        onRequestCreated(eventData);
+      } else if (eventType === 'THUMBTACK_RF_CLOSE') {
         onClose();
       }
     };
 
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, [onRequestCreated, onClose]);
+  }, [onRequestCreated, onClose, transactionId]);
 
   // Timeout fallback for loading state
   useEffect(() => {
@@ -470,6 +487,7 @@ export default function ThumbtackLander({ config }: ThumbtackLanderProps) {
               url={selectedBusiness.widgets.requestFlowURL}
               onRequestCreated={handleRequestCreated}
               onClose={handleIframeClose}
+              transactionId={utmParams['utm_subid']}
             />
           </div>
         </div>
