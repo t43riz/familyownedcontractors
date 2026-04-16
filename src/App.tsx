@@ -19,10 +19,14 @@ import HVACLander from "./components/home-services/HVACLander";
 import HVACLanderA from "./components/home-services/HVACLanderA";
 import HVACLanderB from "./components/home-services/HVACLanderB";
 import HVACLanderC from "./components/home-services/HVACLanderC";
+import HVACLanderCall from "./components/home-services/HVACLanderCall";
 import KitchenLander from "./components/home-services/KitchenLander";
 import PlumbingLander from "./components/home-services/PlumbingLander";
 import ProgressiveServicesLander from "./components/home-services/ProgressiveServicesLander";
 import ThumbtackLander from "./components/home-services/ThumbtackLander";
+import RoofingLanderWaterfall from "./components/home-services/RoofingLanderWaterfall";
+import HVACLanderWaterfall from "./components/home-services/HVACLanderWaterfall";
+import WindowsLanderWaterfall from "./components/home-services/WindowsLanderWaterfall";
 import { THUMBTACK_SERVICES } from "./services/thumbtackConfig";
 import { initializeTracking } from "./services/analytics";
 import ScrollToTop from "./components/ScrollToTop";
@@ -64,6 +68,8 @@ const App = () => {
             <Route path="/hvac-b" element={<HVACLanderB />} />
             <Route path="/home-services/hvac-c" element={<HVACLanderC />} />
             <Route path="/hvac-c" element={<HVACLanderC />} />
+            <Route path="/home-services/hvac-call" element={<HVACLanderCall />} />
+            <Route path="/hvac-call" element={<HVACLanderCall />} />
             <Route path="/home-services/kitchen" element={<KitchenLander />} />
             <Route path="/kitchen" element={<KitchenLander />} />
             <Route path="/home-services/plumbing" element={<PlumbingLander />} />
@@ -76,6 +82,13 @@ const App = () => {
             <Route path="/home-services/roofing-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.roofing} />} />
             <Route path="/hvac-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.hvac} />} />
             <Route path="/home-services/hvac-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.hvac} />} />
+            {/* Waterfall landers (ping/post -> RTB -> Thumbtack) */}
+            <Route path="/roofing-w" element={<RoofingLanderWaterfall />} />
+            <Route path="/home-services/roofing-w" element={<RoofingLanderWaterfall />} />
+            <Route path="/hvac-w" element={<HVACLanderWaterfall />} />
+            <Route path="/home-services/hvac-w" element={<HVACLanderWaterfall />} />
+            <Route path="/windows-w" element={<WindowsLanderWaterfall />} />
+            <Route path="/home-services/windows-w" element={<WindowsLanderWaterfall />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/terms" element={<TermsOfService />} />
             <Route path="/do-not-sell" element={<DoNotSell />} />
