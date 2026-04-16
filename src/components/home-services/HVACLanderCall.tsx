@@ -5,7 +5,7 @@
  * - Captures Jornaya LeadiD + TrustedForm cert URL on click and attaches
  *   them as tags/custom data so Sparrow associates them with the click event.
  */
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Phone, CheckCircle, Clock, ShieldCheck } from 'lucide-react';
 import {
   AnimatedCard,
@@ -13,9 +13,10 @@ import {
   ComplianceFooter,
 } from './SharedFormComponents';
 
-const SPARROW_POOL_ID = '60e43fb0-9500-4205-9a9f-b4a6b3056077';
-const SPARROW_SNIPPET_SRC =
-  'https://sparrow-dni.propelsys.workers.dev/dni/sparrow-dni.min.js';
+// Fallback placeholder (matches the one seeded into index.html). Edge Inject
+// rewrites the shell anchor server-side; the client snippet updates it if
+// Edge Inject didn't run. Either way the component reads the resolved number
+// from window.__sparrow_cb.result or the shell anchor on mount.
 const DEFAULT_PHONE_DISPLAY = '1-800-555-0000';
 const DEFAULT_PHONE_TEL = '+18005550000';
 
@@ -29,18 +30,71 @@ declare global {
       tags?: Record<string, unknown>;
       result?: { number?: string; formatted?: string; session_id?: string };
     };
+    __sparrow_edge_injected?: boolean;
   }
 }
 
+function digitsToTel(input: string | undefined | null): string {
+  const digits = (input || '').replace(/\D/g, '');
+  if (!digits) return '';
+  return `tel:+${digits.length === 10 ? '1' + digits : digits}`;
+}
+
+function readSparrowNumber(): { display: string; tel: string } | null {
+  // 1) Edge Inject populates window.__sparrow_cb.result before JS runs
+  const cb = window.__sparrow_cb?.result;
+  if (cb?.formatted || cb?.number) {
+    const display = cb.formatted || cb.number || '';
+    const tel = digitsToTel(cb.number || cb.formatted);
+    if (display && tel) return { display, tel };
+  }
+  // 2) Client-side snippet swaps the shell anchor in index.html
+  const shell = document.querySelector<HTMLAnchorElement>(
+    '#sparrow-dni-shell a[data-sparrow-phone], #sparrow-dni-shell a[data-sparrow-number]'
+  );
+  if (shell) {
+    const display = shell.getAttribute('data-sparrow-number') || shell.textContent?.trim() || '';
+    const tel = shell.getAttribute('href') || digitsToTel(display);
+    if (display && tel && !display.startsWith('1-800-555-0000')) return { display, tel };
+  }
+  return null;
+}
+
 export default function HVACLanderCall() {
-  // --- Inject the Sparrow DNI snippet once on mount ---
+  const [phone, setPhone] = useState<{ display: string; tel: string }>(() => ({
+    display: DEFAULT_PHONE_DISPLAY,
+    tel: `tel:${DEFAULT_PHONE_TEL}`,
+  }));
+
+  // Sync the displayed number with whatever Sparrow (Edge Inject or snippet) resolved
   useEffect(() => {
-    if (document.querySelector(`script[data-sparrow-pool="${SPARROW_POOL_ID}"]`)) return;
-    const s = document.createElement('script');
-    s.src = SPARROW_SNIPPET_SRC;
-    s.async = true;
-    s.setAttribute('data-sparrow-pool', SPARROW_POOL_ID);
-    document.head.appendChild(s);
+    const apply = () => {
+      const resolved = readSparrowNumber();
+      if (resolved) setPhone(resolved);
+    };
+    // Run immediately — Edge Inject may already have written __sparrow_cb.result
+    apply();
+
+    // Poll for up to ~10s while the client snippet boots / fetches a session
+    let attempts = 0;
+    const interval = window.setInterval(() => {
+      attempts += 1;
+      apply();
+      if (attempts >= 40) window.clearInterval(interval);
+    }, 250);
+
+    // Watch the shell anchor for attribute/text changes (snippet swap)
+    const shell = document.getElementById('sparrow-dni-shell');
+    let observer: MutationObserver | undefined;
+    if (shell) {
+      observer = new MutationObserver(apply);
+      observer.observe(shell, { attributes: true, childList: true, subtree: true, characterData: true });
+    }
+
+    return () => {
+      window.clearInterval(interval);
+      observer?.disconnect();
+    };
   }, []);
 
   // --- Build the tags object from compliance inputs + push to DNI ---
@@ -144,23 +198,13 @@ export default function HVACLanderCall() {
             </div>
 
             {/* Big Tap-to-Call CTA
-                NOTE: Sparrow DNI replaces the innerHTML of any element with
-                [data-sparrow-phone]. To keep the button layout intact, we put
-                that attribute on ONLY the inner number span, not the whole
-                anchor. We also sync the anchor href from the swapped number
-                on click, so the tel: link always matches what's visible. */}
+                The visible number comes from React state (`phone`), which is
+                synced to whatever Sparrow DNI resolved — either server-side
+                via Edge Inject (window.__sparrow_cb.result) or client-side
+                via the snippet swapping the shell anchor in index.html. */}
             <a
-              href={`tel:${DEFAULT_PHONE_TEL}`}
-              aria-label={`Tap to call ${DEFAULT_PHONE_DISPLAY}`}
-              onClick={(e) => {
-                const el = e.currentTarget.querySelector<HTMLElement>('[data-sparrow-phone], [data-sparrow-number]');
-                const swapped =
-                  el?.getAttribute('data-sparrow-number') ||
-                  el?.textContent?.trim() ||
-                  '';
-                const digits = swapped.replace(/\D/g, '');
-                if (digits) e.currentTarget.setAttribute('href', `tel:+${digits.length === 10 ? '1' + digits : digits}`);
-              }}
+              href={phone.tel}
+              aria-label={`Tap to call ${phone.display}`}
               className="group relative block w-full overflow-hidden rounded-2xl bg-gradient-to-br from-brand-green to-brand-green/80 text-white shadow-[0_12px_30px_-10px_rgba(22,163,74,0.55)] hover:shadow-[0_18px_40px_-10px_rgba(22,163,74,0.7)] ring-1 ring-brand-green/60 hover:ring-2 active:scale-[0.995] transition-all duration-200"
             >
               {/* subtle shine */}
@@ -179,12 +223,8 @@ export default function HVACLanderCall() {
                   <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-[0.18em] text-white/85">
                     Tap to Call
                   </span>
-                  {/* DNI swap target — isolated so it only replaces the number */}
-                  <span
-                    data-sparrow-phone
-                    className="text-2xl sm:text-3xl font-extrabold tracking-tight tabular-nums"
-                  >
-                    {DEFAULT_PHONE_DISPLAY}
+                  <span className="text-2xl sm:text-3xl font-extrabold tracking-tight tabular-nums">
+                    {phone.display}
                   </span>
                 </div>
               </div>

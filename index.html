@@ -43,6 +43,24 @@
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5XBKCGMV"
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
+
+    <!--
+      Sparrow DNI — Edge Inject target.
+      The anchor below is placed OUTSIDE #root so React never touches it.
+      Cloudflare HTMLRewriter streams the response and, when the Edge Inject
+      Worker route is active, rewrites the href and innerText on this anchor
+      server-side. The client snippet then boots with __sparrow_edge_injected
+      and __sparrow_cb.result pre-populated, and React reads the number from
+      window.__sparrow_cb.result / this anchor on mount.
+      When Edge Inject is not active, the snippet swaps this anchor client-side
+      and any other [data-sparrow-phone] element React later renders.
+    -->
+    <div id="sparrow-dni-shell" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap" aria-hidden="true">
+      <a href="tel:+18005550000" data-sparrow-phone>1-800-555-0000</a>
+    </div>
+    <script data-sparrow-pool="60e43fb0-9500-4205-9a9f-b4a6b3056077"
+      src="https://sparrow-dni.propelsys.workers.dev/dni/sparrow-dni.min.js" async></script>
+
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
 
