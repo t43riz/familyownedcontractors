@@ -143,18 +143,31 @@ export default function HVACLanderCall() {
               </p>
             </div>
 
-            {/* Big Tap-to-Call CTA */}
+            {/* Big Tap-to-Call CTA
+                NOTE: Sparrow DNI replaces the innerHTML of any element with
+                [data-sparrow-phone]. To keep the button layout intact, we put
+                that attribute on ONLY the inner number span, not the whole
+                anchor. We also sync the anchor href from the swapped number
+                on click, so the tel: link always matches what's visible. */}
             <a
               href={`tel:${DEFAULT_PHONE_TEL}`}
-              data-sparrow-phone
               aria-label={`Tap to call ${DEFAULT_PHONE_DISPLAY}`}
+              onClick={(e) => {
+                const el = e.currentTarget.querySelector<HTMLElement>('[data-sparrow-phone], [data-sparrow-number]');
+                const swapped =
+                  el?.getAttribute('data-sparrow-number') ||
+                  el?.textContent?.trim() ||
+                  '';
+                const digits = swapped.replace(/\D/g, '');
+                if (digits) e.currentTarget.setAttribute('href', `tel:+${digits.length === 10 ? '1' + digits : digits}`);
+              }}
               className="group relative block w-full overflow-hidden rounded-2xl bg-gradient-to-br from-brand-green to-brand-green/80 text-white shadow-[0_12px_30px_-10px_rgba(22,163,74,0.55)] hover:shadow-[0_18px_40px_-10px_rgba(22,163,74,0.7)] ring-1 ring-brand-green/60 hover:ring-2 active:scale-[0.995] transition-all duration-200"
             >
               {/* subtle shine */}
               <span className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/15 to-transparent" />
 
               <div className="relative flex items-center justify-center gap-3 sm:gap-4 px-4 py-4 sm:py-5">
-                <span className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-white/15 ring-1 ring-white/30">
+                <span className="relative flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-white/15 ring-1 ring-white/30">
                   {/* pulsing live indicator */}
                   <span className="absolute -top-0.5 -right-0.5 flex h-3 w-3">
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white/60 opacity-75" />
@@ -166,7 +179,11 @@ export default function HVACLanderCall() {
                   <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-[0.18em] text-white/85">
                     Tap to Call
                   </span>
-                  <span className="text-2xl sm:text-3xl font-extrabold tracking-tight tabular-nums">
+                  {/* DNI swap target — isolated so it only replaces the number */}
+                  <span
+                    data-sparrow-phone
+                    className="text-2xl sm:text-3xl font-extrabold tracking-tight tabular-nums"
+                  >
                     {DEFAULT_PHONE_DISPLAY}
                   </span>
                 </div>
