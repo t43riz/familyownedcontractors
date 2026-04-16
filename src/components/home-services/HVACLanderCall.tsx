@@ -147,33 +147,55 @@ export default function HVACLanderCall() {
             <a
               href={`tel:${DEFAULT_PHONE_TEL}`}
               data-sparrow-phone
-              className="group block w-full rounded-xl bg-brand-green hover:bg-brand-green/90 text-white text-center py-5 sm:py-6 px-4 shadow-lg hover:shadow-xl transform hover:scale-[1.01] transition-all duration-200 border-2 border-brand-green"
+              aria-label={`Tap to call ${DEFAULT_PHONE_DISPLAY}`}
+              className="group relative block w-full overflow-hidden rounded-2xl bg-gradient-to-br from-brand-green to-brand-green/80 text-white shadow-[0_12px_30px_-10px_rgba(22,163,74,0.55)] hover:shadow-[0_18px_40px_-10px_rgba(22,163,74,0.7)] ring-1 ring-brand-green/60 hover:ring-2 active:scale-[0.995] transition-all duration-200"
             >
-              <div className="flex items-center justify-center gap-3">
-                <Phone className="h-6 w-6 sm:h-7 sm:w-7" />
-                <span className="text-xl sm:text-2xl font-extrabold tracking-tight">
-                  Tap to Call {DEFAULT_PHONE_DISPLAY}
+              {/* subtle shine */}
+              <span className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/15 to-transparent" />
+
+              <div className="relative flex items-center justify-center gap-3 sm:gap-4 px-4 py-4 sm:py-5">
+                <span className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-white/15 ring-1 ring-white/30">
+                  {/* pulsing live indicator */}
+                  <span className="absolute -top-0.5 -right-0.5 flex h-3 w-3">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white/60 opacity-75" />
+                    <span className="relative inline-flex h-3 w-3 rounded-full bg-white" />
+                  </span>
+                  <Phone className="h-5 w-5 sm:h-6 sm:w-6" />
                 </span>
+                <div className="flex flex-col items-start leading-tight">
+                  <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-[0.18em] text-white/85">
+                    Tap to Call
+                  </span>
+                  <span className="text-2xl sm:text-3xl font-extrabold tracking-tight tabular-nums">
+                    {DEFAULT_PHONE_DISPLAY}
+                  </span>
+                </div>
               </div>
-              <div className="text-xs sm:text-sm opacity-90 mt-1">
-                Free estimates · Licensed pros · No obligation
+
+              <div className="relative border-t border-white/15 bg-black/10 px-4 py-2 text-center text-[11px] sm:text-xs font-medium tracking-wide text-white/90">
+                Licensed pros · No obligation · Calls answered 24/7
               </div>
             </a>
 
             {/* Secondary benefits row */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-5 sm:mt-6">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <CheckCircle className="h-5 w-5 text-brand-green" />
-                <span className="font-medium">Free quotes</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <ShieldCheck className="h-5 w-5 text-brand-green" />
-                <span className="font-medium">Licensed &amp; insured</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Clock className="h-5 w-5 text-brand-green" />
-                <span className="font-medium">Fast response</span>
-              </div>
+            <div className="grid grid-cols-3 gap-2 sm:gap-3 mt-5 sm:mt-6">
+              {[
+                { Icon: CheckCircle, label: 'Fast quotes' },
+                { Icon: ShieldCheck, label: 'Licensed & insured' },
+                { Icon: Clock, label: 'Fast response' },
+              ].map(({ Icon, label }) => (
+                <div
+                  key={label}
+                  className="flex flex-col items-center justify-center gap-1.5 rounded-xl border border-border bg-white/60 px-2 py-3 text-center shadow-sm sm:flex-row sm:gap-2 sm:py-3"
+                >
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-green/10 text-brand-green">
+                    <Icon className="h-4 w-4" />
+                  </span>
+                  <span className="text-[11px] sm:text-sm font-semibold text-foreground leading-tight">
+                    {label}
+                  </span>
+                </div>
+              ))}
             </div>
 
             {/* How it works */}
@@ -182,7 +204,7 @@ export default function HVACLanderCall() {
               <ol className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
                 <li>Tap the number above to call.</li>
                 <li>We match you with a local HVAC specialist.</li>
-                <li>Schedule your visit and get your free estimate.</li>
+                <li>Schedule your visit and get your estimate.</li>
               </ol>
             </div>
 
