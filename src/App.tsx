@@ -82,6 +82,59 @@ const App = () => {
             <Route path="/home-services/roofing-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.roofing} />} />
             <Route path="/hvac-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.hvac} />} />
             <Route path="/home-services/hvac-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.hvac} />} />
+            {/* Strict-category Thumbtack landers — new descriptive slugs */}
+            <Route path="/roofing-installation-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.roofing_install} />} />
+            <Route path="/home-services/roofing-installation-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.roofing_install} />} />
+            <Route path="/kitchen-remodeling-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.kitchen_remodel} />} />
+            <Route path="/home-services/kitchen-remodeling-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.kitchen_remodel} />} />
+            <Route path="/bathroom-remodeling-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.bath_remodel} />} />
+            <Route path="/home-services/bathroom-remodeling-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.bath_remodel} />} />
+            <Route path="/hot-tub-installation-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.hot_tub} />} />
+            <Route path="/home-services/hot-tub-installation-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.hot_tub} />} />
+            <Route path="/walk-in-tub-installation-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.walk_in_tub} />} />
+            <Route path="/home-services/walk-in-tub-installation-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.walk_in_tub} />} />
+            <Route path="/siding-installation-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.siding_install} />} />
+            <Route path="/home-services/siding-installation-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.siding_install} />} />
+            <Route path="/heating-air-conditioning-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.hvac_install} />} />
+            <Route path="/home-services/heating-air-conditioning-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.hvac_install} />} />
+            <Route path="/water-heater-installation-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.water_heater} />} />
+            <Route path="/home-services/water-heater-installation-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.water_heater} />} />
+            <Route path="/basement-remodeling-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.basement_remodel} />} />
+            <Route path="/home-services/basement-remodeling-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.basement_remodel} />} />
+            <Route path="/roofing-repair-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.roofing_repair} />} />
+            <Route path="/home-services/roofing-repair-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.roofing_repair} />} />
+            <Route path="/deck-addition-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.deck_addition} />} />
+            <Route path="/home-services/deck-addition-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.deck_addition} />} />
+            <Route path="/flooring-installation-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.flooring_install} />} />
+            <Route path="/home-services/flooring-installation-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.flooring_install} />} />
+            <Route path="/basement-waterproofing-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.waterproofing} />} />
+            <Route path="/home-services/basement-waterproofing-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.waterproofing} />} />
+            <Route path="/interior-painting-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.interior_painting} />} />
+            <Route path="/home-services/interior-painting-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.interior_painting} />} />
+            <Route path="/mold-remediation-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.mold_remediation} />} />
+            <Route path="/home-services/mold-remediation-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.mold_remediation} />} />
+            <Route path="/patio-remodel-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.patio_addition} />} />
+            <Route path="/home-services/patio-remodel-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.patio_addition} />} />
+            <Route path="/fence-gate-installation-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.fence_install} />} />
+            <Route path="/home-services/fence-gate-installation-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.fence_install} />} />
+            <Route path="/gutters-installation-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.gutters_install} />} />
+            <Route path="/home-services/gutters-installation-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.gutters_install} />} />
+            <Route path="/tree-trimming-removal-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.tree_service} />} />
+            <Route path="/home-services/tree-trimming-removal-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.tree_service} />} />
+            <Route path="/plumbing-installation-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.plumbing_install} />} />
+            <Route path="/home-services/plumbing-installation-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.plumbing_install} />} />
+            <Route path="/windows-installation-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.windows_install} />} />
+            <Route path="/home-services/windows-installation-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.windows_install} />} />
+            <Route path="/epoxy-floor-coating-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.epoxy_floor} />} />
+            <Route path="/home-services/epoxy-floor-coating-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.epoxy_floor} />} />
+            <Route path="/garage-door-installation-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.garage_door} />} />
+            <Route path="/home-services/garage-door-installation-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.garage_door} />} />
+            <Route path="/deck-porch-repair-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.deck_repair} />} />
+            <Route path="/home-services/deck-porch-repair-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.deck_repair} />} />
+            <Route path="/insulation-installation-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.insulation} />} />
+            <Route path="/home-services/insulation-installation-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.insulation} />} />
+            <Route path="/cabinet-installation-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.cabinet_install} />} />
+            <Route path="/home-services/cabinet-installation-tt" element={<ThumbtackLander config={THUMBTACK_SERVICES.cabinet_install} />} />
             {/* Waterfall landers (ping/post -> RTB -> Thumbtack) */}
             <Route path="/roofing-w" element={<RoofingLanderWaterfall />} />
             <Route path="/home-services/roofing-w" element={<RoofingLanderWaterfall />} />

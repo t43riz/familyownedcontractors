@@ -51,7 +51,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
   try {
     const body: any = await context.request.json();
-    const { searchQuery, zipCode, limit = 10, utmParams = {} } = body;
+    const { searchQuery, zipCode, limit = 10, utmParams = {}, categoryPk } = body;
 
     if (!searchQuery || !zipCode) {
       return new Response(
@@ -82,6 +82,9 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         zipCode,
         utmData,
         limit,
+        // Only forward categoryPk when caller supplies it — keeps existing
+        // pages (which don't send it) on their current broad-search behavior.
+        ...(categoryPk ? { categoryPk } : {}),
       }),
     });
 

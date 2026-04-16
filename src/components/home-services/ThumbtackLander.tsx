@@ -285,7 +285,16 @@ export default function ThumbtackLander({ config }: ThumbtackLanderProps) {
     setState('loading');
 
     try {
-      const result = await searchThumbtackPros(config.searchQuery, cleaned, 10, utmParams);
+      const result = await searchThumbtackPros(
+        config.searchQuery,
+        cleaned,
+        10,
+        utmParams,
+        // Only pass categoryPk for new strict-category configs; existing
+        // pages (windows/roofing/hvac) leave strictCategory undefined so
+        // the backend keeps its current broad search behavior.
+        config.strictCategory ? config.categoryPk : undefined
+      );
       if (result.data && result.data.length > 0) {
         setBusinesses(result.data);
         setState('pro-list');
