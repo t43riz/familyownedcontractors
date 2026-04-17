@@ -171,12 +171,12 @@ const ProCard = ({
 // THUMBTACK REQUEST FLOW IFRAME
 // ============================================================================
 
-const firePostback = async (transactionId: string) => {
+const firePostback = async (transactionId: string, serviceKey?: string) => {
   try {
     await fetch('/api/tt-postback', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ transaction_id: transactionId }),
+      body: JSON.stringify({ transaction_id: transactionId, service_key: serviceKey }),
     });
   } catch (e) {
     console.error('Postback failed:', e);
@@ -188,11 +188,13 @@ const ThumbtackRequestFlow = ({
   onRequestCreated,
   onClose,
   transactionId,
+  serviceKey,
 }: {
   url: string;
   onRequestCreated: (eventData?: any) => void;
   onClose: () => void;
   transactionId?: string;
+  serviceKey?: string;
 }) => {
   const [isLoading, setIsLoading] = useState(true);
 
@@ -205,7 +207,7 @@ const ThumbtackRequestFlow = ({
 
       if (eventType === 'THUMBTACK_RF_REQUEST_CREATED') {
         if (transactionId) {
-          firePostback(transactionId);
+          firePostback(transactionId, serviceKey);
         }
         onRequestCreated(eventData);
       } else if (eventType === 'THUMBTACK_RF_CLOSE') {
@@ -215,7 +217,7 @@ const ThumbtackRequestFlow = ({
 
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, [onRequestCreated, onClose, transactionId]);
+  }, [onRequestCreated, onClose, transactionId, serviceKey]);
 
   // Timeout fallback for loading state
   useEffect(() => {
@@ -497,6 +499,7 @@ export default function ThumbtackLander({ config }: ThumbtackLanderProps) {
               onRequestCreated={handleRequestCreated}
               onClose={handleIframeClose}
               transactionId={utmParams['utm_subid']}
+              serviceKey={config.serviceKey}
             />
           </div>
         </div>
