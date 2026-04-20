@@ -15,6 +15,8 @@ const EVENT_IDS: Record<string, string> = {
   hvac_install: '396',
   roofing: '398',
   roofing_install: '398',
+  flooring_install: '407',
+  interior_painting: '409',
 };
 
 export const onRequestPost: PagesFunction<Env> = async (context) => {
