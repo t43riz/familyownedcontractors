@@ -254,6 +254,58 @@ export default function HVACLanderCall() {
               </p>
             </div>
 
+            {/* TCPA disclosure — placed directly above the CTA in the reading
+                path so it satisfies the "clear and conspicuous" standard:
+                - normal text size & color (not muted)
+                - separated from advertising copy
+                - identifies marketing partners via hyperlink
+                - covers ATDS / prerecorded message
+                - states consent is not a condition of purchase */}
+            <div className="mb-4 sm:mb-5 rounded-lg border border-border bg-white px-4 py-3 text-[13px] sm:text-sm text-foreground leading-relaxed">
+              By tapping{' '}
+              <span className="font-semibold">CALL NOW</span>{' '}
+              below, I agree and provide my electronic signature as express written
+              consent for FamilyOwnedContractors.com and up to 4 of its{' '}
+              <a
+                href="/partners"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary underline hover:text-primary/80"
+              >
+                marketing partners
+              </a>
+              , including American Residential Services LLC, affiliated home service
+              companies and their partners, and parties acting on their behalf, to
+              contact me for marketing and telemarketing purposes regarding home
+              improvement services via phone calls and text messages at the number I
+              dial or that is dialed for me, including calls or texts placed using an
+              automatic telephone dialing system or an artificial or prerecorded
+              voice. I understand that my consent is{' '}
+              <span className="font-semibold">not a condition</span> of purchasing
+              any goods or services. Message and data rates may apply. Message
+              frequency may vary. Text HELP for assistance or STOP to opt out. My
+              consent applies even if my number is on any state or federal
+              Do-Not-Call registry. Calls may be recorded for quality and
+              compliance. I have read and agree to the{' '}
+              <a
+                href="/privacy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary underline hover:text-primary/80"
+              >
+                Privacy Policy
+              </a>{' '}
+              and{' '}
+              <a
+                href="/terms"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary underline hover:text-primary/80"
+              >
+                Terms of Service
+              </a>.
+            </div>
+
             {/* Big Tap-to-Call CTA
                 The visible number comes from React state (`phone`), which is
                 synced to whatever Sparrow DNI resolved — either server-side
@@ -278,7 +330,7 @@ export default function HVACLanderCall() {
                 </span>
                 <div className="flex flex-col items-start leading-tight">
                   <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-[0.18em] text-white/85">
-                    Tap to Call
+                    Call Now
                   </span>
                   <span className="text-2xl sm:text-3xl font-extrabold tracking-tight tabular-nums">
                     {phone.display}
@@ -322,11 +374,11 @@ export default function HVACLanderCall() {
               </ol>
             </div>
 
-            {/* TCPA disclosure for calls */}
+            {/* Short reminder; the full TCPA disclosure is above the CTA in
+                the reading path. */}
             <p className="text-[11px] sm:text-xs text-muted-foreground text-center leading-relaxed mt-5">
-              By calling the number above, you consent to be connected with a licensed HVAC
-              contractor or one of FamilyOwnedContractors.com&apos;s marketing partners. Calls
-              may be recorded for quality and compliance. See our{' '}
+              See full consent language above. Calls may be recorded for quality and
+              compliance. See our{' '}
               <a href="/privacy" target="_blank" rel="noopener noreferrer" className="underline text-primary hover:text-primary/80">
                 Privacy Policy
               </a>{' '}
