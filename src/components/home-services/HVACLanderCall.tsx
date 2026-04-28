@@ -254,58 +254,6 @@ export default function HVACLanderCall() {
               </p>
             </div>
 
-            {/* TCPA disclosure — placed directly above the CTA in the reading
-                path so it satisfies the "clear and conspicuous" standard:
-                - normal text size & color (not muted)
-                - separated from advertising copy
-                - identifies marketing partners via hyperlink
-                - covers ATDS / prerecorded message
-                - states consent is not a condition of purchase */}
-            <div className="mb-4 sm:mb-5 rounded-lg border border-border bg-white px-4 py-3 text-[13px] sm:text-sm text-foreground leading-relaxed">
-              By tapping{' '}
-              <span className="font-semibold">CALL NOW</span>{' '}
-              below, I agree and provide my electronic signature as express written
-              consent for FamilyOwnedContractors.com and up to 4 of its{' '}
-              <a
-                href="/partners"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary underline hover:text-primary/80"
-              >
-                marketing partners
-              </a>
-              , including American Residential Services LLC, affiliated home service
-              companies and their partners, and parties acting on their behalf, to
-              contact me for marketing and telemarketing purposes regarding home
-              improvement services via phone calls and text messages at the number I
-              dial or that is dialed for me, including calls or texts placed using an
-              automatic telephone dialing system or an artificial or prerecorded
-              voice. I understand that my consent is{' '}
-              <span className="font-semibold">not a condition</span> of purchasing
-              any goods or services. Message and data rates may apply. Message
-              frequency may vary. Text HELP for assistance or STOP to opt out. My
-              consent applies even if my number is on any state or federal
-              Do-Not-Call registry. Calls may be recorded for quality and
-              compliance. I have read and agree to the{' '}
-              <a
-                href="/privacy"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary underline hover:text-primary/80"
-              >
-                Privacy Policy
-              </a>{' '}
-              and{' '}
-              <a
-                href="/terms"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary underline hover:text-primary/80"
-              >
-                Terms of Service
-              </a>.
-            </div>
-
             {/* Big Tap-to-Call CTA
                 The visible number comes from React state (`phone`), which is
                 synced to whatever Sparrow DNI resolved — either server-side
@@ -374,19 +322,51 @@ export default function HVACLanderCall() {
               </ol>
             </div>
 
-            {/* Short reminder; the full TCPA disclosure is above the CTA in
-                the reading path. */}
-            <p className="text-[11px] sm:text-xs text-muted-foreground text-center leading-relaxed mt-5">
-              See full consent language above. Calls may be recorded for quality and
-              compliance. See our{' '}
-              <a href="/privacy" target="_blank" rel="noopener noreferrer" className="underline text-primary hover:text-primary/80">
+            {/* TCPA disclosure */}
+            <div className="mt-5 rounded-lg border border-border bg-white px-4 py-3 text-[13px] sm:text-sm text-foreground leading-relaxed">
+              By tapping{' '}
+              <span className="font-semibold">CALL NOW</span>{' '}
+              above, I agree and provide my electronic signature as express written
+              consent for FamilyOwnedContractors.com and up to 4 of its{' '}
+              <a
+                href="/partners"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary underline hover:text-primary/80"
+              >
+                marketing partners
+              </a>
+              , including American Residential Services LLC, affiliated home service
+              companies and their partners, and parties acting on their behalf, to
+              contact me for marketing and telemarketing purposes regarding home
+              improvement services via phone calls and text messages at the number I
+              dial or that is dialed for me, including calls or texts placed using an
+              automatic telephone dialing system or an artificial or prerecorded
+              voice. I understand that my consent is{' '}
+              <span className="font-semibold">not a condition</span> of purchasing
+              any goods or services. Message and data rates may apply. Message
+              frequency may vary. Text HELP for assistance or STOP to opt out. My
+              consent applies even if my number is on any state or federal
+              Do-Not-Call registry. Calls may be recorded for quality and
+              compliance. I have read and agree to the{' '}
+              <a
+                href="/privacy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary underline hover:text-primary/80"
+              >
                 Privacy Policy
               </a>{' '}
               and{' '}
-              <a href="/terms" target="_blank" rel="noopener noreferrer" className="underline text-primary hover:text-primary/80">
+              <a
+                href="/terms"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary underline hover:text-primary/80"
+              >
                 Terms of Service
               </a>.
-            </p>
+            </div>
           </AnimatedCard>
 
           <SocialProof serviceName="homeowners" />
