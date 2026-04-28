@@ -144,6 +144,62 @@ export default function HVACLanderCall() {
       if (attempts >= 20) window.clearInterval(interval);
     }, 500);
 
+    // Fire the click-as-optin once per page load so we don't double-log if
+    // a user taps multiple times in a row.
+    let optinFired = false;
+    const fireOptin = () => {
+      if (optinFired) return;
+      const tokens = getTokens();
+      const params = new URLSearchParams(window.location.search);
+      const queryParams: Record<string, string> = {};
+      params.forEach((value, key) => {
+        queryParams[key] = value;
+      });
+      const phoneEl = document.querySelector<HTMLAnchorElement>(
+        'a[href^="tel:"]'
+      );
+      const phoneTel = phoneEl?.getAttribute('href') || '';
+      const phoneDisplay = phoneEl?.textContent?.trim() || '';
+      const sparrowSessionId = window.__sparrow_cb?.result?.session_id || null;
+
+      const payload = {
+        txid: queryParams['txid'] || null,
+        service: 'hvac',
+        page: 'hvac-call',
+        phone_dialed: phoneTel.replace(/^tel:/, '') || null,
+        phone_display: phoneDisplay || null,
+        jornaya_leadid: tokens.jornaya_leadid || null,
+        trustedform_cert_url: tokens.trustedform_cert_url || null,
+        landing_page_url: window.location.href,
+        referrer: document.referrer || null,
+        user_agent: navigator.userAgent,
+        query_params: queryParams,
+        sparrow_session_id: sparrowSessionId,
+      };
+
+      // Use sendBeacon so the request survives the tel: navigation.
+      try {
+        const blob = new Blob([JSON.stringify(payload)], {
+          type: 'application/json',
+        });
+        const ok = navigator.sendBeacon?.('/api/call-click-optin', blob);
+        if (!ok) {
+          // sendBeacon failed or unavailable — fall back to keepalive fetch.
+          fetch('/api/call-click-optin', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+            keepalive: true,
+          }).catch(() => {
+            /* ignore */
+          });
+        }
+        optinFired = true;
+      } catch {
+        /* ignore */
+      }
+    };
+
     // Ensure tags are attached *before* the DNI click beacon fires
     const onPhoneInteract = (e: Event) => {
       const target = e.target as HTMLElement | null;
@@ -153,6 +209,7 @@ export default function HVACLanderCall() {
       );
       if (!anchor) return;
       applyTags();
+      fireOptin();
     };
     document.addEventListener('mousedown', onPhoneInteract, true);
     document.addEventListener('click', onPhoneInteract, true);
