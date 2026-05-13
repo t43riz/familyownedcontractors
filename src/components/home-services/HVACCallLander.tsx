@@ -236,12 +236,12 @@ export default function HVACCallLander() {
             </div>
           </section>
 
-          {/* CTA — DNI-swapped phone via React state */}
+          {/* CTA — phone resolved into React state by Sparrow DNI (Edge Inject / __sparrow_cb).
+              Do NOT put data-sparrow-phone on the anchor itself — the Sparrow snippet will
+              swap the anchor's innerHTML with just the number, wiping the button label. */}
           <a
             href={phone.tel}
             aria-label={`Tap to call ${phone.display}`}
-            data-sparrow-phone
-            data-sparrow-number={phone.display}
             className="group mt-4 block rounded-xl bg-red-600 hover:bg-red-700 active:bg-red-800 transition-colors shadow-button ring-1 ring-red-700/20 focus:outline-none focus:ring-4 focus:ring-red-300"
           >
             <div className="flex flex-col items-center justify-center gap-0.5 px-5 py-3.5 sm:py-4 text-white">
