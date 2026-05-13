@@ -1,18 +1,210 @@
 /**
- * HVAC Call-Only Lander
- * Click-to-call variant — red + blue scheme, "Contractors Compete. You Save."
+ * HVAC Call-Only Lander — v2
+ * Click-to-call variant with red+blue scheme and "Contractors Compete. You Save."
+ * Ports the Sparrow DNI / Jornaya / TrustedForm / call-click-optin wiring from
+ * HVACLanderCall.tsx so call attribution and TCPA opt-in logging work identically.
  */
-import React from 'react';
-import { Phone, Clock, CheckCircle } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Phone, Clock } from 'lucide-react';
 import { ComplianceFooter, SocialProof } from './SharedFormComponents';
 
-// Replace with the buyer phone number for this campaign.
-const PHONE_DISPLAY = '(855) 555-0142';
-const PHONE_TEL = '+18555550142';
+// Fallback placeholder (matches the seed in index.html). Edge Inject rewrites
+// the shell anchor server-side; the client snippet updates it if Edge Inject
+// didn't run. Either way the component reads the resolved number from
+// window.__sparrow_cb.result or the shell anchor on mount.
+const DEFAULT_PHONE_DISPLAY = '1-800-555-0000';
+const DEFAULT_PHONE_TEL = '+18005550000';
+
+declare global {
+  interface Window {
+    SparrowDNI?: {
+      setTags?: (tags: Record<string, unknown>) => void;
+      tag?: (tags: Record<string, unknown>) => void;
+    };
+    __sparrow_cb?: {
+      tags?: Record<string, unknown>;
+      result?: { number?: string; formatted?: string; session_id?: string };
+    };
+    __sparrow_edge_injected?: boolean;
+  }
+}
+
+function digitsToTel(input: string | undefined | null): string {
+  const digits = (input || '').replace(/\D/g, '');
+  if (!digits) return '';
+  return `tel:+${digits.length === 10 ? '1' + digits : digits}`;
+}
+
+function readSparrowNumber(): { display: string; tel: string } | null {
+  const cb = window.__sparrow_cb?.result;
+  if (cb?.formatted || cb?.number) {
+    const display = cb.formatted || cb.number || '';
+    const tel = digitsToTel(cb.number || cb.formatted);
+    if (display && tel) return { display, tel };
+  }
+  const shell = document.querySelector<HTMLAnchorElement>(
+    '#sparrow-dni-shell a[data-sparrow-phone], #sparrow-dni-shell a[data-sparrow-number]'
+  );
+  if (shell) {
+    const display = shell.getAttribute('data-sparrow-number') || shell.textContent?.trim() || '';
+    const tel = shell.getAttribute('href') || digitsToTel(display);
+    if (display && tel && !display.startsWith('1-800-555-0000')) return { display, tel };
+  }
+  return null;
+}
 
 export default function HVACCallLander() {
+  const [phone, setPhone] = useState<{ display: string; tel: string }>(() => ({
+    display: DEFAULT_PHONE_DISPLAY,
+    tel: `tel:${DEFAULT_PHONE_TEL}`,
+  }));
+
+  // Sync displayed number with whatever Sparrow (Edge Inject or snippet) resolved
+  useEffect(() => {
+    const apply = () => {
+      const resolved = readSparrowNumber();
+      if (resolved) setPhone(resolved);
+    };
+    apply();
+
+    let attempts = 0;
+    const interval = window.setInterval(() => {
+      attempts += 1;
+      apply();
+      if (attempts >= 40) window.clearInterval(interval);
+    }, 250);
+
+    const shell = document.getElementById('sparrow-dni-shell');
+    let observer: MutationObserver | undefined;
+    if (shell) {
+      observer = new MutationObserver(apply);
+      observer.observe(shell, { attributes: true, childList: true, subtree: true, characterData: true });
+    }
+
+    return () => {
+      window.clearInterval(interval);
+      observer?.disconnect();
+    };
+  }, []);
+
+  // Attach Jornaya / TrustedForm tags to DNI + fire call-click optin
+  useEffect(() => {
+    const getTokens = () => {
+      const leadIdEl = document.getElementById('leadid_token') as HTMLInputElement | null;
+      const tfEl = document.getElementById('xxTrustedFormCertUrl') as HTMLInputElement | null;
+      return {
+        jornaya_leadid: leadIdEl?.value || '',
+        trustedform_cert_url: tfEl?.value || '',
+        landing_page: window.location.href,
+        service: 'hvac',
+        page: 'hvac-call-v2',
+      };
+    };
+
+    const applyTags = () => {
+      const tags = getTokens();
+      if (window.SparrowDNI?.setTags) window.SparrowDNI.setTags(tags);
+      else if (window.SparrowDNI?.tag) window.SparrowDNI.tag(tags);
+
+      if (window.__sparrow_cb) {
+        window.__sparrow_cb.tags = { ...(window.__sparrow_cb.tags || {}), ...tags };
+      }
+
+      const targets = document.querySelectorAll<HTMLElement>(
+        '[data-sparrow-phone], [data-sparrow-number]'
+      );
+      try {
+        const serialized = JSON.stringify(tags);
+        targets.forEach((el) => el.setAttribute('data-sparrow-tags', serialized));
+      } catch {
+        /* ignore serialization errors */
+      }
+    };
+
+    let attempts = 0;
+    applyTags();
+    const interval = window.setInterval(() => {
+      attempts += 1;
+      applyTags();
+      if (attempts >= 20) window.clearInterval(interval);
+    }, 500);
+
+    let optinFired = false;
+    const fireOptin = () => {
+      if (optinFired) return;
+      const tokens = getTokens();
+      const params = new URLSearchParams(window.location.search);
+      const queryParams: Record<string, string> = {};
+      params.forEach((value, key) => {
+        queryParams[key] = value;
+      });
+      const phoneEl = document.querySelector<HTMLAnchorElement>('a[href^="tel:"]');
+      const phoneTel = phoneEl?.getAttribute('href') || '';
+      const phoneDisplay = phoneEl?.textContent?.trim() || '';
+      const sparrowSessionId = window.__sparrow_cb?.result?.session_id || null;
+
+      const payload = {
+        txid: queryParams['txid'] || null,
+        service: 'hvac',
+        page: 'hvac-call-v2',
+        phone_dialed: phoneTel.replace(/^tel:/, '') || null,
+        phone_display: phoneDisplay || null,
+        jornaya_leadid: tokens.jornaya_leadid || null,
+        trustedform_cert_url: tokens.trustedform_cert_url || null,
+        landing_page_url: window.location.href,
+        referrer: document.referrer || null,
+        user_agent: navigator.userAgent,
+        query_params: queryParams,
+        sparrow_session_id: sparrowSessionId,
+      };
+
+      try {
+        const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+        const ok = navigator.sendBeacon?.('/api/call-click-optin', blob);
+        if (!ok) {
+          fetch('/api/call-click-optin', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+            keepalive: true,
+          }).catch(() => {
+            /* ignore */
+          });
+        }
+        optinFired = true;
+      } catch {
+        /* ignore */
+      }
+    };
+
+    const onPhoneInteract = (e: Event) => {
+      const target = e.target as HTMLElement | null;
+      if (!target) return;
+      const anchor = target.closest(
+        'a[href^="tel:"], [data-sparrow-phone], [data-sparrow-number]'
+      );
+      if (!anchor) return;
+      applyTags();
+      fireOptin();
+    };
+    document.addEventListener('mousedown', onPhoneInteract, true);
+    document.addEventListener('click', onPhoneInteract, true);
+    document.addEventListener('touchstart', onPhoneInteract, true);
+
+    return () => {
+      window.clearInterval(interval);
+      document.removeEventListener('mousedown', onPhoneInteract, true);
+      document.removeEventListener('click', onPhoneInteract, true);
+      document.removeEventListener('touchstart', onPhoneInteract, true);
+    };
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted">
+      {/* Hidden compliance inputs — populated by Jornaya / TrustedForm scripts in index.html */}
+      <input id="leadid_token" name="universal_leadid" type="hidden" />
+      <input id="xxTrustedFormCertUrl" name="xxTrustedFormCertUrl" type="hidden" />
+
       <header className="border-b border-border/60 bg-white sticky top-0 z-50 shadow-custom-sm">
         <div className="container mx-auto px-4 py-3 sm:py-4 flex items-center justify-center">
           <a href="/" className="flex flex-col items-center gap-1">
@@ -35,7 +227,6 @@ export default function HVACCallLander() {
               get matched with a licensed technician in a free, quick call.
             </p>
 
-            {/* Availability badge — now red */}
             <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-red-50 border border-red-200 px-2.5 py-1">
               <span className="relative flex h-2 w-2">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-500 opacity-60" />
@@ -45,10 +236,12 @@ export default function HVACCallLander() {
             </div>
           </section>
 
-          {/* CTA Button */}
+          {/* CTA — DNI-swapped phone via React state */}
           <a
-            href={`tel:${PHONE_TEL}`}
-            aria-label={`Call now for free at ${PHONE_DISPLAY}`}
+            href={phone.tel}
+            aria-label={`Tap to call ${phone.display}`}
+            data-sparrow-phone
+            data-sparrow-number={phone.display}
             className="group mt-4 block rounded-xl bg-red-600 hover:bg-red-700 active:bg-red-800 transition-colors shadow-button ring-1 ring-red-700/20 focus:outline-none focus:ring-4 focus:ring-red-300"
           >
             <div className="flex flex-col items-center justify-center gap-0.5 px-5 py-3.5 sm:py-4 text-white">
@@ -57,7 +250,7 @@ export default function HVACCallLander() {
                 Call Now for FREE
               </span>
               <span className="text-base sm:text-lg font-semibold text-white/90 tabular-nums">
-                {PHONE_DISPLAY}
+                {phone.display}
               </span>
             </div>
           </a>
@@ -100,7 +293,7 @@ export default function HVACCallLander() {
             <p className="text-[10px] leading-snug text-muted-foreground/80">
               By tapping <span className="font-semibold">CALL NOW</span> above, I agree and provide my electronic signature as
               express written consent for FamilyOwnedContractors.com and up to 4 of its{' '}
-              <a href="/partners" className="underline hover:text-brand-navy">marketing partners</a>,
+              <a href="/partners" target="_blank" rel="noopener noreferrer" className="underline hover:text-brand-navy">marketing partners</a>,
               including American Residential Services LLC, affiliated home service companies and their
               partners, and parties acting on their behalf, to contact me for marketing and telemarketing
               purposes regarding home improvement services via phone calls and text messages at the number
@@ -110,8 +303,8 @@ export default function HVACCallLander() {
               Message and data rates may apply. Message frequency may vary. Text HELP for assistance or
               STOP to opt out. My consent applies even if my number is on any state or federal Do-Not-Call
               registry. Calls may be recorded for quality and compliance. I have read and agree to the{' '}
-              <a href="/privacy" className="underline hover:text-brand-navy">Privacy Policy</a> and{' '}
-              <a href="/terms" className="underline hover:text-brand-navy">Terms of Service</a>.
+              <a href="/privacy" target="_blank" rel="noopener noreferrer" className="underline hover:text-brand-navy">Privacy Policy</a> and{' '}
+              <a href="/terms" target="_blank" rel="noopener noreferrer" className="underline hover:text-brand-navy">Terms of Service</a>.
             </p>
           </section>
 
