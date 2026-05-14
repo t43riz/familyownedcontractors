@@ -237,10 +237,10 @@ export default function HVACCallLander() {
             </div>
           </section>
 
-          {/* CTA — only the inner phone-number <span> carries data-sparrow-phone, so the
-              Sparrow snippet swaps THAT span's textContent (and the anchor's tel: href via
-              its own querySelectorAll('a[href^="tel:"]') pass) without nuking the icon or
-              "Call Now for FREE" label. */}
+          {/* CTA — visible number comes from React state (`phone`), which is synced
+              from window.__sparrow_cb.result (Edge Inject) or the #sparrow-dni-shell
+              anchor in index.html (client-side snippet swap). No data-sparrow-* attrs
+              on the visible CTA, so Sparrow never fights React for this DOM. */}
           <a
             href={phone.tel}
             aria-label={`Tap to call ${phone.display}`}
@@ -251,10 +251,7 @@ export default function HVACCallLander() {
                 <Phone className="h-5 w-5 sm:h-6 sm:w-6" />
                 Call Now for FREE
               </span>
-              <span
-                data-sparrow-phone
-                className="text-base sm:text-lg font-semibold text-white/90 tabular-nums"
-              >
+              <span className="text-base sm:text-lg font-semibold text-white/90 tabular-nums">
                 {phone.display}
               </span>
             </div>
