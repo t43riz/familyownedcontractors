@@ -208,31 +208,32 @@ export default function HVACCallLander() {
       <header className="border-b border-border/60 bg-white sticky top-0 z-50 shadow-custom-sm">
         <div className="container mx-auto px-4 py-3 sm:py-4 flex items-center justify-center">
           <a href="/" className="flex flex-col items-center gap-1">
-            <img src="/FOC_less_logo.svg" alt="Family Owned Contractors" className="h-8 sm:h-10 w-auto" />
-            <img src="/FOC_name_logo.svg" alt="Family Owned Contractors" className="h-4 sm:h-6 w-auto" />
+            <img src="/FOC_less_logo.svg" alt="Family Owned Contractors" className="h-11 sm:h-12 w-auto" />
+            <img src="/FOC_name_logo.svg" alt="Family Owned Contractors" className="h-6 sm:h-7 w-auto" />
           </a>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-4 sm:py-6">
+      <main className="container mx-auto px-4 py-5 sm:py-8">
         <div className="max-w-xl mx-auto">
           {/* Hero */}
           <section className="text-center">
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-brand-navy leading-tight tracking-tight">
+            <h1 className="text-4xl sm:text-5xl font-extrabold text-brand-navy leading-[1.05] tracking-tight">
               Contractors Compete. <span className="text-red-600">You Save.</span>
             </h1>
-            <p className="mt-2 text-sm sm:text-base text-foreground/80 leading-snug">
-              Speak with a local HVAC pro for free. Have contractors compete for your installation
-              and potentially lower your price. AC repair, heating service, installs &amp; more —
-              get matched with a licensed technician in a free, quick call.
+            <p className="mt-4 text-base sm:text-lg text-foreground/80 leading-snug">
+              Speak with a local HVAC pro <span className="font-semibold text-foreground">for free</span>.
+              Have contractors <span className="font-semibold text-foreground">compete for your installation</span> and
+              potentially <span className="font-semibold text-foreground">lower your price</span>. AC repair,
+              heating service, installs &amp; more — get matched with a <span className="font-semibold text-foreground">licensed technician</span> in a free, quick call.
             </p>
 
-            <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-red-50 border border-red-200 px-2.5 py-1">
-              <span className="relative flex h-2 w-2">
+            <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-red-50 border border-red-200 px-3 py-1.5">
+              <span className="relative flex h-2.5 w-2.5">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-500 opacity-60" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-red-600" />
+                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-red-600" />
               </span>
-              <span className="text-xs font-semibold text-red-700">Available now · 24/7 Support</span>
+              <span className="text-sm font-semibold text-red-700">Available now · 24/7 Support</span>
             </div>
           </section>
 
@@ -243,7 +244,7 @@ export default function HVACCallLander() {
           <a
             href={phone.tel}
             aria-label={`Tap to call ${phone.display}`}
-            className="group mt-4 block rounded-xl bg-red-600 hover:bg-red-700 active:bg-red-800 transition-colors shadow-button ring-1 ring-red-700/20 focus:outline-none focus:ring-4 focus:ring-red-300"
+            className="group mt-5 sm:mt-6 block rounded-xl bg-red-600 hover:bg-red-700 active:bg-red-800 transition-colors shadow-button ring-1 ring-red-700/20 focus:outline-none focus:ring-4 focus:ring-red-300"
           >
             <div className="flex flex-col items-center justify-center gap-0.5 px-5 py-3.5 sm:py-4 text-white">
               <span className="flex items-center gap-2.5 text-xl sm:text-2xl font-extrabold tracking-tight uppercase">
