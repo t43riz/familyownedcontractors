@@ -5,7 +5,7 @@
  * HVACLanderCall.tsx so call attribution and TCPA opt-in logging work identically.
  */
 import { useEffect, useState } from 'react';
-import { Phone, Clock } from 'lucide-react';
+import { Phone, Clock, ShieldCheck, BadgeCheck, DollarSign } from 'lucide-react';
 import { ComplianceFooter, SocialProof } from './SharedFormComponents';
 
 // Fallback placeholder (matches the seed in index.html). Edge Inject rewrites
@@ -259,34 +259,66 @@ export default function HVACCallLander() {
               </span>
             </div>
           </a>
-          <p className="mt-1.5 text-center text-[11px] text-muted-foreground">
+          <p className="mt-2 text-center text-xs text-muted-foreground">
             Tap the above number to call for free
           </p>
 
+          {/* Trust strip — three reassurance pills under the CTA */}
+          <div className="mt-5 grid grid-cols-3 gap-2 sm:gap-3">
+            {[
+              { Icon: DollarSign, label: 'Free quotes' },
+              { Icon: ShieldCheck, label: 'Licensed pros' },
+              { Icon: BadgeCheck, label: 'No obligation' },
+            ].map(({ Icon, label }) => (
+              <div
+                key={label}
+                className="flex flex-col items-center justify-center gap-1.5 rounded-xl border border-brand-blue/15 bg-white px-2 py-3 text-center shadow-custom-sm"
+              >
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-blue/10 text-brand-blue">
+                  <Icon className="h-4 w-4" />
+                </span>
+                <span className="text-[11px] sm:text-xs font-semibold text-brand-navy leading-tight">
+                  {label}
+                </span>
+              </div>
+            ))}
+          </div>
+
           {/* How it works */}
-          <section className="mt-4 rounded-xl border border-brand-blue/15 bg-white p-3.5 sm:p-4 shadow-custom-sm">
-            <h2 className="text-sm sm:text-base font-bold text-brand-navy mb-2.5 flex items-center gap-1.5">
-              <Clock className="h-4 w-4 text-brand-blue" />
+          <section className="mt-5 rounded-2xl border border-brand-blue/15 bg-white p-5 sm:p-6 shadow-custom-sm">
+            <h2 className="text-base sm:text-lg font-bold text-brand-navy mb-4 flex items-center gap-2">
+              <Clock className="h-5 w-5 text-brand-blue" />
               How it works
             </h2>
-            <ol className="space-y-2">
-              <li className="flex items-start gap-2.5">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-blue text-white font-bold text-xs">
+            <ol className="space-y-4">
+              <li className="flex items-start gap-3">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-blue text-white font-bold text-sm">
                   1
                 </span>
                 <div className="leading-snug">
-                  <p className="text-sm font-semibold text-foreground">Tap the number above</p>
-                  <p className="text-xs text-muted-foreground">Free, fast — connects you in seconds.</p>
+                  <p className="text-base font-semibold text-foreground">Tap the number above</p>
+                  <p className="text-sm text-muted-foreground">Free, fast — connects you in seconds.</p>
                 </div>
               </li>
-              <li className="flex items-start gap-2.5">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-blue text-white font-bold text-xs">
+              <li className="flex items-start gap-3">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-blue text-white font-bold text-sm">
                   2
                 </span>
                 <div className="leading-snug">
-                  <p className="text-sm font-semibold text-foreground">Speak with a local HVAC pro</p>
-                  <p className="text-xs text-muted-foreground">
-                    Get matched with a licensed technician.
+                  <p className="text-base font-semibold text-foreground">Speak with a local HVAC pro</p>
+                  <p className="text-sm text-muted-foreground">
+                    Share your project — they'll ask a couple quick questions to match you with a licensed technician.
+                  </p>
+                </div>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-blue text-white font-bold text-sm">
+                  3
+                </span>
+                <div className="leading-snug">
+                  <p className="text-base font-semibold text-foreground">Get competing quotes</p>
+                  <p className="text-sm text-muted-foreground">
+                    Compare prices from multiple contractors and choose the best fit — no obligation.
                   </p>
                 </div>
               </li>
@@ -294,7 +326,7 @@ export default function HVACCallLander() {
           </section>
 
           {/* TCPA / consent — de-emphasized */}
-          <section className="mt-3 rounded-lg border border-border/60 bg-muted/30 px-3 py-2">
+          <section className="mt-5 rounded-lg border border-border/60 bg-muted/30 px-3 py-2">
             <p className="text-[10px] leading-snug text-muted-foreground/80">
               By tapping <span className="font-semibold">CALL NOW</span> above, I agree and provide my electronic signature as
               express written consent for FamilyOwnedContractors.com and up to 4 of its{' '}
