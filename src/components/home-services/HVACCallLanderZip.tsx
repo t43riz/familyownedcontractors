@@ -90,76 +90,82 @@ function readSparrowEndpoint(): string {
 }
 
 /**
- * Push the ZIP into the live Sparrow DNI session attribution via /v2/session/validate.
- * Retries every 250ms (up to ~4s) while waiting for the snippet to boot.
- * Resolves once a send was attempted, or rejects silently after the timeout.
+ * Push the ZIP into the live Sparrow DNI session attribution via /v2/session/validate
+ * and wait for the server to confirm it committed before resolving.
+ *
+ * Why awaited fetch instead of sendBeacon: the caller (CTA reveal gate) needs
+ * to know the attribution was persisted before it lets the user dial, so the
+ * call-flow's `gather_input` skip flag sees the ZIP. sendBeacon has no
+ * response handle.
+ *
+ * Retries every 250ms (up to ~4s) while waiting for the snippet to expose
+ * the visitor_id + cache_token, then fires a single fetch with a 3s timeout.
+ * Returns true iff the server returned { valid: true }; false on
+ * timeout / network error / unconfirmed response.
  */
-function pushZipToSparrow(zip: string): Promise<void> {
-  return new Promise((resolve) => {
-    let attempts = 0;
-    const maxAttempts = 16; // ~4s at 250ms cadence
+async function pushZipToSparrow(zip: string): Promise<boolean> {
+  // Wait for the snippet to expose visitor + cache token (up to ~4s)
+  const maxAttempts = 16;
+  let attempts = 0;
+  let poolId: string | null = null;
+  let visitorId: string | null = null;
+  let cacheToken = '';
 
-    const trySend = () => {
-      attempts += 1;
+  while (attempts < maxAttempts) {
+    // Set tag for any future sessions. Cheap, sync.
+    try {
+      window.Sparrow?.setTag?.('zip', zip);
+    } catch {
+      /* ignore */
+    }
+    poolId = readSparrowPoolId();
+    visitorId = window.Sparrow?.getVisitorId?.() ?? null;
+    const edgeResult = window.__sparrow_cb?.result as { cache_token?: string } | undefined;
+    cacheToken = window.Sparrow?.getCacheToken?.() ?? edgeResult?.cache_token ?? '';
+    if (poolId && visitorId) break;
+    attempts += 1;
+    await new Promise<void>((r) => window.setTimeout(r, 250));
+  }
 
-      // 1) Set tag for any future sessions. Cheap, sync.
-      try {
-        window.Sparrow?.setTag?.('zip', zip);
-      } catch {
-        /* ignore */
-      }
+  if (!poolId || !visitorId) {
+    console.warn('[Sparrow] no visitor/pool, skipping validate push');
+    return false;
+  }
 
-      const poolId = readSparrowPoolId();
-      const visitorId = window.Sparrow?.getVisitorId?.() ?? '';
-      const edgeResult = window.__sparrow_cb?.result as { cache_token?: string } | undefined;
-      const cacheToken =
-        window.Sparrow?.getCacheToken?.() ??
-        edgeResult?.cache_token ??
-        '';
-
-      if (!poolId || !visitorId) {
-        if (attempts >= maxAttempts) {
-          resolve();
-          return;
-        }
-        window.setTimeout(trySend, 250);
-        return;
-      }
-
-      const endpoint = readSparrowEndpoint();
-      const url = `${endpoint}/v2/session/validate`;
-      const payload = JSON.stringify({
-        pool_id: poolId,
-        visitor_id: visitorId,
-        cache_token: cacheToken,
-        // `zip` lands in attribution.urlParams.zip; `tag_zip` lands in
-        // attribution.customTags.zip. Belt-and-suspenders for downstream
-        // consumers keying off either.
-        attribution: { zip, tag_zip: zip },
-      });
-
-      try {
-        const blob = new Blob([payload], { type: 'text/plain' });
-        const ok = navigator.sendBeacon?.(url, blob);
-        if (!ok) {
-          fetch(url, {
-            method: 'POST',
-            body: payload,
-            headers: { 'Content-Type': 'text/plain' },
-            keepalive: true,
-          }).catch(() => {
-            /* ignore */
-          });
-        }
-      } catch {
-        /* ignore */
-      }
-
-      resolve();
-    };
-
-    trySend();
+  const endpoint = readSparrowEndpoint();
+  const url = `${endpoint}/v2/session/validate`;
+  const body = JSON.stringify({
+    pool_id: poolId,
+    visitor_id: visitorId,
+    cache_token: cacheToken,
+    // `zip` lands in attribution.urlParams.zip; `tag_zip` lands in
+    // attribution.customTags.zip. Belt-and-suspenders for downstream
+    // consumers keying off either.
+    attribution: { zip, tag_zip: zip },
   });
+
+  const controller = new AbortController();
+  const timer = window.setTimeout(() => controller.abort(), 3000);
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      body,
+      headers: { 'Content-Type': 'application/json' },
+      signal: controller.signal,
+      keepalive: true,
+    });
+    const json = (await res.json().catch(() => ({}))) as { valid?: boolean };
+    if (!json?.valid) {
+      console.warn('[Sparrow] validate did not confirm', json);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.warn('[Sparrow] validate failed/timeout', err);
+    return false;
+  } finally {
+    window.clearTimeout(timer);
+  }
 }
 
 function isValidZip(value: string): boolean {
@@ -177,6 +183,7 @@ export default function HVACCallLanderZip() {
   const [zipInput, setZipInput] = useState<string>('');
   const [zipError, setZipError] = useState<string | null>(null);
   const [step, setStep] = useState<'zip' | 'ready'>('zip');
+  const [submitting, setSubmitting] = useState<boolean>(false);
   const zipFieldRef = useRef<HTMLInputElement | null>(null);
 
   // Hydrate ZIP from sessionStorage on mount
@@ -187,10 +194,23 @@ export default function HVACCallLanderZip() {
         setZip(stored);
         setZipInput(stored);
         setStep('ready');
-        // Re-push to Sparrow so the current session also gets the ZIP attached
-        // (a fresh tab may have created a brand-new Sparrow session that wasn't
-        // tagged at creation time).
-        void pushZipToSparrow(stored);
+        // Mirror onto __sparrow_cb.tags synchronously so applyTags + the
+        // click-optin payload pick it up without waiting for the network push.
+        try {
+          window.__sparrow_cb = window.__sparrow_cb || {};
+          window.__sparrow_cb.tags = {
+            ...(window.__sparrow_cb.tags || {}),
+            zip: stored,
+          };
+        } catch {
+          /* ignore */
+        }
+        // Re-push to the live session — fire-and-forget on mount is fine since
+        // the user has already validated this ZIP in a prior visit and the CTA
+        // is revealed immediately.
+        pushZipToSparrow(stored).catch(() => {
+          /* ignore */
+        });
       }
     } catch {
       /* ignore storage errors (private mode etc.) */
@@ -363,22 +383,42 @@ export default function HVACCallLanderZip() {
     };
   }, []);
 
-  const handleZipSubmit = (e: React.FormEvent) => {
+  const handleZipSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitting) return;
     const cleaned = zipInput.replace(/\D/g, '').slice(0, 5);
     if (!isValidZip(cleaned)) {
       setZipError('Please enter a valid 5-digit US ZIP code.');
       return;
     }
     setZipError(null);
-    setZip(cleaned);
+    setSubmitting(true);
     try {
-      window.sessionStorage.setItem(ZIP_STORAGE_KEY, cleaned);
-    } catch {
-      /* ignore */
+      try {
+        window.sessionStorage.setItem(ZIP_STORAGE_KEY, cleaned);
+      } catch {
+        /* ignore */
+      }
+      // Mirror onto __sparrow_cb.tags synchronously so any other code paths
+      // (the applyTags loop, the click-optin payload builder, etc.) pick it up
+      // immediately without waiting for the validate round trip.
+      try {
+        window.__sparrow_cb = window.__sparrow_cb || {};
+        window.__sparrow_cb.tags = {
+          ...(window.__sparrow_cb.tags || {}),
+          zip: cleaned,
+        };
+      } catch {
+        /* ignore */
+      }
+      // Best effort — even on failure we still reveal the CTA so the page is
+      // usable. The 3s timeout inside pushZipToSparrow caps the worst case.
+      await pushZipToSparrow(cleaned);
+      setZip(cleaned);
+      setStep('ready');
+    } finally {
+      setSubmitting(false);
     }
-    void pushZipToSparrow(cleaned);
-    setStep('ready');
   };
 
   const handleChangeZip = () => {
@@ -471,9 +511,11 @@ export default function HVACCallLanderZip() {
                 />
                 <button
                   type="submit"
-                  className="rounded-xl bg-red-600 hover:bg-red-700 active:bg-red-800 transition-colors px-5 py-3 text-base font-extrabold uppercase text-white shadow-button ring-1 ring-red-700/20 focus:outline-none focus:ring-4 focus:ring-red-300"
+                  disabled={submitting}
+                  aria-busy={submitting ? 'true' : 'false'}
+                  className="rounded-xl bg-red-600 hover:bg-red-700 active:bg-red-800 transition-colors px-5 py-3 text-base font-extrabold uppercase text-white shadow-button ring-1 ring-red-700/20 focus:outline-none focus:ring-4 focus:ring-red-300 disabled:opacity-70 disabled:cursor-wait"
                 >
-                  See My Free Quote Number
+                  {submitting ? 'Loading…' : 'See My Free Quote Number'}
                 </button>
               </div>
 
