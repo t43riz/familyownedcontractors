@@ -21,6 +21,7 @@ import HVACLanderB from "./components/home-services/HVACLanderB";
 import HVACLanderC from "./components/home-services/HVACLanderC";
 import HVACLanderCall from "./components/home-services/HVACLanderCall";
 import HVACCallLander from "./components/home-services/HVACCallLander";
+import HVACCallLanderZip from "./components/home-services/HVACCallLanderZip";
 import KitchenLander from "./components/home-services/KitchenLander";
 import PlumbingLander from "./components/home-services/PlumbingLander";
 import ProgressiveServicesLander from "./components/home-services/ProgressiveServicesLander";
@@ -73,6 +74,8 @@ const App = () => {
             <Route path="/hvac-call" element={<HVACLanderCall />} />
             <Route path="/home-services/hvac-call-v2" element={<HVACCallLander />} />
             <Route path="/hvac-call-v2" element={<HVACCallLander />} />
+            <Route path="/home-services/hvac-call-v3" element={<HVACCallLanderZip />} />
+            <Route path="/hvac-call-v3" element={<HVACCallLanderZip />} />
             <Route path="/home-services/kitchen" element={<KitchenLander />} />
             <Route path="/kitchen" element={<KitchenLander />} />
             <Route path="/home-services/plumbing" element={<PlumbingLander />} />
