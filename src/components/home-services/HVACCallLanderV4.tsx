@@ -81,6 +81,10 @@ export default function HVACCallLanderV4() {
   const [zip, setZip] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [countdown, setCountdown] = useState(30);
+  // Mobile: bind the app height to the visual viewport so an open keyboard
+  // shrinks the app (input rides above it) instead of leaving the body
+  // scrolled — which pushed the header off-screen and opened a void below.
+  const [appHeight, setAppHeight] = useState<number | null>(null);
 
   const idRef = useRef(2);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -93,6 +97,31 @@ export default function HVACCallLanderV4() {
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages]);
+
+  // Keep the app sized to the visible viewport on mobile (keyboard-aware) and
+  // pin the body to the top so it can never be left in a scrolled state.
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const mql = window.matchMedia('(max-width: 639px)');
+    const update = () => {
+      if (mql.matches) {
+        setAppHeight(vv.height);
+        window.scrollTo(0, 0);
+      } else {
+        setAppHeight(null);
+      }
+    };
+    update();
+    vv.addEventListener('resize', update);
+    vv.addEventListener('scroll', update);
+    mql.addEventListener('change', update);
+    return () => {
+      vv.removeEventListener('resize', update);
+      vv.removeEventListener('scroll', update);
+      mql.removeEventListener('change', update);
+    };
+  }, []);
 
   // Clear pending timers on unmount
   useEffect(() => {
@@ -310,7 +339,10 @@ export default function HVACCallLanderV4() {
   };
 
   return (
-    <div className="flex h-[100dvh] flex-col overflow-x-hidden bg-slate-100">
+    <div
+      className="flex h-[100dvh] flex-col overflow-hidden bg-slate-100"
+      style={appHeight ? { height: `${appHeight}px` } : undefined}
+    >
       {/* Hidden compliance inputs — populated by Jornaya / TrustedForm scripts in index.html */}
       <input id="leadid_token" name="universal_leadid" type="hidden" />
       <input id="xxTrustedFormCertUrl" name="xxTrustedFormCertUrl" type="hidden" />
