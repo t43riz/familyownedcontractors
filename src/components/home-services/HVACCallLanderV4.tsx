@@ -298,7 +298,7 @@ export default function HVACCallLanderV4() {
                 from: 'bot',
                 kind: 'text',
                 text:
-                  'I found an HVAC contractor in your area who is currently available, has verified reviews and affordable pricing. Tap the button below to make a free call. 👇',
+                  'I found an HVAC contractor in your area who is currently available, has verified reviews, and could lower the quote for your new HVAC system. Tap the button to make a free call.',
               }
             : b
         )
