@@ -458,10 +458,9 @@ export default function HVACCallLanderV4() {
           </button>
         </form>
 
-        {/* TCPA / consent — full text always present (not collapsed), but clipped
-            to one line; the user scrolls within this strip to read the rest. */}
-        <div className="border-t border-gray-100 bg-white px-3 py-1.5">
-          <div className="max-h-[1.4rem] overflow-y-auto overscroll-contain text-[10px] leading-relaxed text-gray-400">
+        {/* TCPA / consent — full text, always visible and readable (compliance) */}
+        <div className="border-t border-gray-100 bg-white px-3 py-2">
+          <p className="text-[10px] leading-snug text-gray-500">
             By tapping the call button, I agree and provide my electronic signature as express written
             consent for FamilyOwnedContractors.com and up to 4 of its{' '}
             <a href="/partners" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600">marketing partners</a>,
@@ -476,7 +475,7 @@ export default function HVACCallLanderV4() {
             registry. Calls may be recorded for quality and compliance. I have read and agree to the{' '}
             <a href="/privacy" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600">Privacy Policy</a> and{' '}
             <a href="/terms" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600">Terms of Service</a>.
-          </div>
+          </p>
         </div>
       </div>
     </div>
