@@ -339,7 +339,7 @@ export default function HVACCallLanderV4() {
   };
 
   return (
-    <div className="flex min-h-[100dvh] flex-col overflow-x-hidden bg-slate-100">
+    <div className="flex min-h-[100dvh] flex-col overflow-x-hidden bg-slate-100 sm:justify-center">
       {/* Hidden compliance inputs — populated by Jornaya / TrustedForm scripts in index.html */}
       <input id="leadid_token" name="universal_leadid" type="hidden" />
       <input id="xxTrustedFormCertUrl" name="xxTrustedFormCertUrl" type="hidden" />
@@ -350,7 +350,7 @@ export default function HVACCallLanderV4() {
             conversation + input always fit; the disclaimer lives below it in
             scroll flow and never steals space from the chat. */}
         <div
-          className="flex h-[100dvh] flex-col overflow-hidden sm:h-auto sm:max-h-[calc(100dvh-2rem)]"
+          className="flex h-[100dvh] flex-col overflow-hidden sm:h-[32rem] sm:max-h-[calc(100dvh-12rem)]"
           style={appHeight ? { height: `${appHeight}px` } : undefined}
         >
         {/* Header — clean Messenger chat bar: who you're talking to + brand mark */}
