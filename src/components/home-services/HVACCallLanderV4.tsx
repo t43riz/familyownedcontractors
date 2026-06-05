@@ -81,6 +81,9 @@ export default function HVACCallLanderV4() {
   const [zip, setZip] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [countdown, setCountdown] = useState(30);
+  // On mobile we pin the app to the visual viewport so the input rides just
+  // above the keyboard instead of the body scrolling and revealing empty space.
+  const [appHeight, setAppHeight] = useState<number | null>(null);
 
   const idRef = useRef(2);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -89,10 +92,28 @@ export default function HVACCallLanderV4() {
 
   const nextId = () => idRef.current++;
 
-  // Auto-scroll to the newest message
+  // Auto-scroll to the newest message (also when the keyboard resizes the app)
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
-  }, [messages]);
+  }, [messages, appHeight]);
+
+  // Bind the app height to the visual viewport on mobile so the keyboard
+  // shrinks the app (input stays pinned above it) instead of scrolling the body.
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const mql = window.matchMedia('(max-width: 639px)');
+    const update = () => setAppHeight(mql.matches ? vv.height : null);
+    update();
+    vv.addEventListener('resize', update);
+    vv.addEventListener('scroll', update);
+    mql.addEventListener('change', update);
+    return () => {
+      vv.removeEventListener('resize', update);
+      vv.removeEventListener('scroll', update);
+      mql.removeEventListener('change', update);
+    };
+  }, []);
 
   // Clear pending timers on unmount
   useEffect(() => {
@@ -310,13 +331,16 @@ export default function HVACCallLanderV4() {
   };
 
   return (
-    <div className="flex min-h-[100dvh] flex-col overflow-x-hidden bg-slate-100">
+    <div
+      className="flex min-h-[100dvh] flex-col overflow-hidden bg-slate-100"
+      style={appHeight ? { position: 'fixed', inset: '0 0 auto 0', height: `${appHeight}px`, minHeight: 0 } : undefined}
+    >
       {/* Hidden compliance inputs — populated by Jornaya / TrustedForm scripts in index.html */}
       <input id="leadid_token" name="universal_leadid" type="hidden" />
       <input id="xxTrustedFormCertUrl" name="xxTrustedFormCertUrl" type="hidden" />
 
       {/* Messenger-style chat shell */}
-      <div className="mx-auto flex w-full max-w-md flex-1 flex-col bg-white shadow-xl sm:my-4 sm:max-h-[calc(100dvh-2rem)] sm:rounded-2xl sm:overflow-hidden">
+      <div className="mx-auto flex min-h-0 w-full max-w-md flex-1 flex-col bg-white shadow-xl sm:my-4 sm:max-h-[calc(100dvh-2rem)] sm:rounded-2xl sm:overflow-hidden">
         {/* Header — clean Messenger chat bar: who you're talking to + brand mark */}
         <header className="flex items-center justify-between gap-3 overflow-hidden bg-gradient-to-r from-[#00B2FF] to-[#006AFF] px-4 py-3 text-white shadow-md">
           <div className="flex min-w-0 flex-1 items-center gap-3">
@@ -355,8 +379,11 @@ export default function HVACCallLanderV4() {
         {/* Message thread */}
         <div
           ref={scrollRef}
-          className="flex-1 space-y-3 overflow-y-auto bg-[#f5f6f8] px-3 py-4"
+          className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-[#f5f6f8] px-3 py-4"
         >
+          {/* mt-auto keeps the latest message pinned to the bottom (just above the
+              input) when the thread isn't full, so the keyboard never reveals a void. */}
+          <div className="mt-auto space-y-3">
           {messages.map((m) => {
             if (m.from === 'user') {
               return (
@@ -423,6 +450,7 @@ export default function HVACCallLanderV4() {
               </div>
             );
           })}
+          </div>
         </div>
 
         {/* Input bar */}
