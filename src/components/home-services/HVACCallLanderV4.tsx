@@ -339,16 +339,20 @@ export default function HVACCallLanderV4() {
   };
 
   return (
-    <div
-      className="flex h-[100dvh] flex-col overflow-hidden bg-slate-100"
-      style={appHeight ? { height: `${appHeight}px` } : undefined}
-    >
+    <div className="flex min-h-[100dvh] flex-col overflow-x-hidden bg-slate-100">
       {/* Hidden compliance inputs — populated by Jornaya / TrustedForm scripts in index.html */}
       <input id="leadid_token" name="universal_leadid" type="hidden" />
       <input id="xxTrustedFormCertUrl" name="xxTrustedFormCertUrl" type="hidden" />
 
       {/* Messenger-style chat shell */}
-      <div className="mx-auto flex min-h-0 w-full max-w-md flex-1 flex-col bg-white shadow-xl sm:my-4 sm:max-h-[calc(100dvh-2rem)] sm:rounded-2xl sm:overflow-hidden">
+      <div className="mx-auto flex w-full max-w-md flex-col bg-white shadow-xl sm:my-4 sm:rounded-2xl sm:overflow-hidden">
+        {/* Chat app — sized to the visible viewport (keyboard-aware) so the
+            conversation + input always fit; the disclaimer lives below it in
+            scroll flow and never steals space from the chat. */}
+        <div
+          className="flex h-[100dvh] flex-col overflow-hidden sm:h-auto sm:max-h-[calc(100dvh-2rem)]"
+          style={appHeight ? { height: `${appHeight}px` } : undefined}
+        >
         {/* Header — clean Messenger chat bar: who you're talking to + brand mark */}
         <header className="flex items-center justify-between gap-3 overflow-hidden bg-gradient-to-r from-[#00B2FF] to-[#006AFF] px-4 py-3 text-white shadow-md">
           <div className="flex min-w-0 flex-1 items-center gap-3">
@@ -489,8 +493,11 @@ export default function HVACCallLanderV4() {
             </svg>
           </button>
         </form>
+        </div>
+        {/* end chat app */}
 
-        {/* TCPA / consent — full text, always visible and readable (compliance) */}
+        {/* TCPA / consent — full text, always readable; sits below the chat in
+            scroll flow so it never crowds the conversation or the keyboard. */}
         <div className="border-t border-gray-100 bg-white px-3 py-2">
           <p className="text-[10px] leading-snug text-gray-500">
             By tapping the call button, I agree and provide my electronic signature as express written
