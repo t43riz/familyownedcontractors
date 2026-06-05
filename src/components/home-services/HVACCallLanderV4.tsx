@@ -310,7 +310,7 @@ export default function HVACCallLanderV4() {
   };
 
   return (
-    <div className="flex min-h-[100dvh] flex-col overflow-x-hidden bg-slate-100">
+    <div className="flex h-[100dvh] flex-col overflow-x-hidden bg-slate-100">
       {/* Hidden compliance inputs — populated by Jornaya / TrustedForm scripts in index.html */}
       <input id="leadid_token" name="universal_leadid" type="hidden" />
       <input id="xxTrustedFormCertUrl" name="xxTrustedFormCertUrl" type="hidden" />
