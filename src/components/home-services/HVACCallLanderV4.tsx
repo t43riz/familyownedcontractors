@@ -458,19 +458,10 @@ export default function HVACCallLanderV4() {
           </button>
         </form>
 
-        {/* TCPA / consent — collapsed by default so it stays out of the way */}
-        <details className="group border-t border-gray-100 bg-white px-3 py-1.5">
-          <summary className="flex cursor-pointer list-none items-center justify-center gap-1 text-[10px] text-gray-400">
-            <span>
-              By tapping call you agree to be contacted &amp; to our{' '}
-              <a href="/terms" target="_blank" rel="noopener noreferrer" className="underline" onClick={(e) => e.stopPropagation()}>Terms</a>.
-            </span>
-            <span className="underline decoration-dotted">Consent details</span>
-            <svg viewBox="0 0 20 20" className="h-3 w-3 transition-transform group-open:rotate-180" fill="currentColor">
-              <path d="M5.5 7.5 10 12l4.5-4.5z" />
-            </svg>
-          </summary>
-          <p className="mt-1.5 text-[9px] leading-snug text-gray-400">
+        {/* TCPA / consent — full text always present (not collapsed), but clipped
+            to one line; the user scrolls within this strip to read the rest. */}
+        <div className="border-t border-gray-100 bg-white px-3 py-1.5">
+          <div className="max-h-[1.4rem] overflow-y-auto overscroll-contain text-[10px] leading-relaxed text-gray-400">
             By tapping the call button, I agree and provide my electronic signature as express written
             consent for FamilyOwnedContractors.com and up to 4 of its{' '}
             <a href="/partners" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600">marketing partners</a>,
@@ -485,8 +476,8 @@ export default function HVACCallLanderV4() {
             registry. Calls may be recorded for quality and compliance. I have read and agree to the{' '}
             <a href="/privacy" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600">Privacy Policy</a> and{' '}
             <a href="/terms" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600">Terms of Service</a>.
-          </p>
-        </details>
+          </div>
+        </div>
       </div>
     </div>
   );
