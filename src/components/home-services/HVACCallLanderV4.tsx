@@ -310,7 +310,7 @@ export default function HVACCallLanderV4() {
   };
 
   return (
-    <div className="flex min-h-[100dvh] flex-col bg-slate-100">
+    <div className="flex min-h-[100dvh] flex-col overflow-x-hidden bg-slate-100">
       {/* Hidden compliance inputs — populated by Jornaya / TrustedForm scripts in index.html */}
       <input id="leadid_token" name="universal_leadid" type="hidden" />
       <input id="xxTrustedFormCertUrl" name="xxTrustedFormCertUrl" type="hidden" />
@@ -318,8 +318,8 @@ export default function HVACCallLanderV4() {
       {/* Messenger-style chat shell */}
       <div className="mx-auto flex w-full max-w-md flex-1 flex-col bg-white shadow-xl sm:my-4 sm:max-h-[calc(100dvh-2rem)] sm:rounded-2xl sm:overflow-hidden">
         {/* Header — clean Messenger chat bar: who you're talking to + brand mark */}
-        <header className="flex items-center justify-between gap-3 bg-gradient-to-r from-[#00B2FF] to-[#006AFF] px-4 py-3 text-white shadow-md">
-          <div className="flex min-w-0 items-center gap-3">
+        <header className="flex items-center justify-between gap-3 overflow-hidden bg-gradient-to-r from-[#00B2FF] to-[#006AFF] px-4 py-3 text-white shadow-md">
+          <div className="flex min-w-0 flex-1 items-center gap-3">
             <div className="relative shrink-0">
               <img
                 src={agentAvatar}
@@ -337,8 +337,8 @@ export default function HVACCallLanderV4() {
             </div>
           </div>
 
-          <a href="/" aria-label="Family Owned Contractors" className="shrink-0 opacity-95 transition-opacity hover:opacity-100">
-            <img src="/FOC_name_logo_white.svg" alt="Family Owned Contractors" className="h-5 w-auto sm:h-6" />
+          <a href="/" aria-label="Family Owned Contractors" className="ml-2 max-w-[42%] shrink-0 opacity-95 transition-opacity hover:opacity-100">
+            <img src="/FOC_name_logo_white.svg" alt="Family Owned Contractors" className="h-5 w-auto max-w-full object-contain sm:h-6" />
           </a>
         </header>
 
@@ -440,7 +440,7 @@ export default function HVACCallLanderV4() {
             onChange={(e) => setZip(e.target.value.replace(/\D/g, '').slice(0, 5))}
             disabled={submitted}
             placeholder={submitted ? 'Tap the call button above 👆' : 'Enter your ZIP code…'}
-            className="flex-1 rounded-full bg-[#f0f2f5] px-4 py-2.5 text-[15px] text-gray-900 outline-none placeholder:text-gray-400 focus:ring-2 focus:ring-[#0084ff]/40 disabled:opacity-60"
+            className="min-w-0 flex-1 rounded-full bg-[#f0f2f5] px-4 py-2.5 text-base text-gray-900 outline-none placeholder:text-gray-400 focus:ring-2 focus:ring-[#0084ff]/40 disabled:opacity-60"
           />
           <button
             type="submit"
@@ -454,9 +454,19 @@ export default function HVACCallLanderV4() {
           </button>
         </form>
 
-        {/* TCPA / consent — de-emphasized */}
-        <div className="border-t border-gray-100 bg-white px-3 py-2">
-          <p className="text-[9px] leading-snug text-gray-400">
+        {/* TCPA / consent — collapsed by default so it stays out of the way */}
+        <details className="group border-t border-gray-100 bg-white px-3 py-1.5">
+          <summary className="flex cursor-pointer list-none items-center justify-center gap-1 text-[10px] text-gray-400">
+            <span>
+              By tapping call you agree to be contacted &amp; to our{' '}
+              <a href="/terms" target="_blank" rel="noopener noreferrer" className="underline" onClick={(e) => e.stopPropagation()}>Terms</a>.
+            </span>
+            <span className="underline decoration-dotted">Consent details</span>
+            <svg viewBox="0 0 20 20" className="h-3 w-3 transition-transform group-open:rotate-180" fill="currentColor">
+              <path d="M5.5 7.5 10 12l4.5-4.5z" />
+            </svg>
+          </summary>
+          <p className="mt-1.5 text-[9px] leading-snug text-gray-400">
             By tapping the call button, I agree and provide my electronic signature as express written
             consent for FamilyOwnedContractors.com and up to 4 of its{' '}
             <a href="/partners" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600">marketing partners</a>,
@@ -472,7 +482,7 @@ export default function HVACCallLanderV4() {
             <a href="/privacy" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600">Privacy Policy</a> and{' '}
             <a href="/terms" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600">Terms of Service</a>.
           </p>
-        </div>
+        </details>
       </div>
     </div>
   );
