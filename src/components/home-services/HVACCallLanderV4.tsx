@@ -81,9 +81,6 @@ export default function HVACCallLanderV4() {
   const [zip, setZip] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [countdown, setCountdown] = useState(30);
-  // On mobile we pin the app to the visual viewport so the input rides just
-  // above the keyboard instead of the body scrolling and revealing empty space.
-  const [appHeight, setAppHeight] = useState<number | null>(null);
 
   const idRef = useRef(2);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -92,28 +89,10 @@ export default function HVACCallLanderV4() {
 
   const nextId = () => idRef.current++;
 
-  // Auto-scroll to the newest message (also when the keyboard resizes the app)
+  // Auto-scroll to the newest message
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
-  }, [messages, appHeight]);
-
-  // Bind the app height to the visual viewport on mobile so the keyboard
-  // shrinks the app (input stays pinned above it) instead of scrolling the body.
-  useEffect(() => {
-    const vv = window.visualViewport;
-    if (!vv) return;
-    const mql = window.matchMedia('(max-width: 639px)');
-    const update = () => setAppHeight(mql.matches ? vv.height : null);
-    update();
-    vv.addEventListener('resize', update);
-    vv.addEventListener('scroll', update);
-    mql.addEventListener('change', update);
-    return () => {
-      vv.removeEventListener('resize', update);
-      vv.removeEventListener('scroll', update);
-      mql.removeEventListener('change', update);
-    };
-  }, []);
+  }, [messages]);
 
   // Clear pending timers on unmount
   useEffect(() => {
@@ -331,10 +310,7 @@ export default function HVACCallLanderV4() {
   };
 
   return (
-    <div
-      className="flex min-h-[100dvh] flex-col overflow-hidden bg-slate-100"
-      style={appHeight ? { position: 'fixed', inset: '0 0 auto 0', height: `${appHeight}px`, minHeight: 0 } : undefined}
-    >
+    <div className="flex min-h-[100dvh] flex-col overflow-x-hidden bg-slate-100">
       {/* Hidden compliance inputs — populated by Jornaya / TrustedForm scripts in index.html */}
       <input id="leadid_token" name="universal_leadid" type="hidden" />
       <input id="xxTrustedFormCertUrl" name="xxTrustedFormCertUrl" type="hidden" />
