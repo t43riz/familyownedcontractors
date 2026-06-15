@@ -8,6 +8,16 @@
  * Reuses the Sparrow DNI / Jornaya / TrustedForm / call-click-optin wiring from
  * HVACCallLander.tsx (v2) so call attribution and TCPA opt-in logging behave
  * identically — only `page` is bumped to 'hvac-call-v5', plus an animated USA-colors stroke on the ZIP field and call CTA.
+ *
+ * Like v3/v4, the ZIP collected in-chat is pushed to the live Sparrow DNI
+ * session so call attribution carries it:
+ *   1. Persist ZIP in sessionStorage (foc_hvac_call_v5_zip).
+ *   2. Call window.Sparrow.setTag('zip', zip) so any new sessions pick it up.
+ *   3. POST to the Sparrow /v2/session/validate endpoint with
+ *      { pool_id, visitor_id, cache_token, attribution: { zip, tag_zip } }
+ *      so the existing live session's attribution is merged.
+ *   4. Subsequent /api/call-click-optin payloads include the ZIP so it
+ *      round-trips into our own Supabase log.
  */
 import { useEffect, useRef, useState } from 'react';
 import { Phone } from 'lucide-react';
@@ -20,8 +30,17 @@ import agentAvatar from '@/assets/agent-avatar.jpg';
 const DEFAULT_PHONE_DISPLAY = '1-800-555-0000';
 const DEFAULT_PHONE_TEL = '+18005550000';
 
+const ZIP_STORAGE_KEY = 'foc_hvac_call_v5_zip';
+const SPARROW_ENDPOINT_FALLBACK = 'https://sparrow-dni.propelsys.workers.dev/dni';
+
 declare global {
   interface Window {
+    Sparrow?: {
+      setTag?: (key: string, value: string | number | boolean) => void;
+      getVisitorId?: () => string | null;
+      getCacheToken?: () => string | null;
+      isReady?: () => boolean;
+    };
     SparrowDNI?: {
       setTags?: (tags: Record<string, unknown>) => void;
       tag?: (tags: Record<string, unknown>) => void;
@@ -38,6 +57,102 @@ function digitsToTel(input: string | undefined | null): string {
   const digits = (input || '').replace(/\D/g, '');
   if (!digits) return '';
   return `tel:+${digits.length === 10 ? '1' + digits : digits}`;
+}
+
+function isValidZip(value: string): boolean {
+  return /^\d{5}$/.test(value);
+}
+
+function readSparrowPoolId(): string | null {
+  const script = document.querySelector<HTMLScriptElement>('script[data-sparrow-pool]');
+  return script?.getAttribute('data-sparrow-pool') ?? null;
+}
+
+function readSparrowEndpoint(): string {
+  const script = document.querySelector<HTMLScriptElement>('script[data-sparrow-pool]');
+  const src = script?.src ?? '';
+  if (!src) return SPARROW_ENDPOINT_FALLBACK;
+  let base = src.slice(0, src.lastIndexOf('/'));
+  if (base.includes('/v2')) base = base.replace('/v2', '');
+  if (!base.endsWith('/dni')) {
+    // Fall back if the script src isn't from our Sparrow worker path
+    return SPARROW_ENDPOINT_FALLBACK;
+  }
+  return base;
+}
+
+/**
+ * Push the ZIP into the live Sparrow DNI session attribution via /v2/session/validate
+ * and wait for the server to confirm it committed before resolving.
+ *
+ * Retries every 250ms (up to ~4s) while waiting for the snippet to expose
+ * the visitor_id + cache_token, then fires a single fetch with a 3s timeout.
+ * Returns true iff the server returned { valid: true }; false on
+ * timeout / network error / unconfirmed response.
+ */
+async function pushZipToSparrow(zip: string): Promise<boolean> {
+  // Wait for the snippet to expose visitor + cache token (up to ~4s)
+  const maxAttempts = 16;
+  let attempts = 0;
+  let poolId: string | null = null;
+  let visitorId: string | null = null;
+  let cacheToken = '';
+
+  while (attempts < maxAttempts) {
+    // Set tag for any future sessions. Cheap, sync.
+    try {
+      window.Sparrow?.setTag?.('zip', zip);
+    } catch {
+      /* ignore */
+    }
+    poolId = readSparrowPoolId();
+    visitorId = window.Sparrow?.getVisitorId?.() ?? null;
+    const edgeResult = window.__sparrow_cb?.result as { cache_token?: string } | undefined;
+    cacheToken = window.Sparrow?.getCacheToken?.() ?? edgeResult?.cache_token ?? '';
+    if (poolId && visitorId) break;
+    attempts += 1;
+    await new Promise<void>((r) => window.setTimeout(r, 250));
+  }
+
+  if (!poolId || !visitorId) {
+    console.warn('[Sparrow] no visitor/pool, skipping validate push');
+    return false;
+  }
+
+  const endpoint = readSparrowEndpoint();
+  const url = `${endpoint}/v2/session/validate`;
+  const body = JSON.stringify({
+    pool_id: poolId,
+    visitor_id: visitorId,
+    cache_token: cacheToken,
+    // `zip` lands in attribution.urlParams.zip; `tag_zip` lands in
+    // attribution.customTags.zip. Belt-and-suspenders for downstream
+    // consumers keying off either.
+    attribution: { zip, tag_zip: zip },
+  });
+
+  const controller = new AbortController();
+  const timer = window.setTimeout(() => controller.abort(), 3000);
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      body,
+      headers: { 'Content-Type': 'application/json' },
+      signal: controller.signal,
+      keepalive: true,
+    });
+    const json = (await res.json().catch(() => ({}))) as { valid?: boolean };
+    if (!json?.valid) {
+      console.warn('[Sparrow] validate did not confirm', json);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.warn('[Sparrow] validate failed/timeout', err);
+    return false;
+  } finally {
+    window.clearTimeout(timer);
+  }
 }
 
 function readSparrowNumber(): { display: string; tel: string } | null {
@@ -209,6 +324,19 @@ export default function HVACCallLanderV5() {
       params.forEach((value, key) => {
         queryParams[key] = value;
       });
+
+      // Include the user-submitted ZIP in query_params so it lands in the
+      // call_click_optins.raw_body JSONB without needing a schema change.
+      let currentZip: string | null = null;
+      try {
+        currentZip = window.sessionStorage.getItem(ZIP_STORAGE_KEY);
+      } catch {
+        /* ignore */
+      }
+      if (currentZip && isValidZip(currentZip)) {
+        queryParams['zip'] = currentZip;
+      }
+
       const phoneEl = document.querySelector<HTMLAnchorElement>('a[href^="tel:"]');
       const phoneTel = phoneEl?.getAttribute('href') || '';
       const phoneDisplay = phoneEl?.textContent?.trim() || '';
@@ -218,6 +346,7 @@ export default function HVACCallLanderV5() {
         txid: queryParams['txid'] || null,
         service: 'hvac',
         page: 'hvac-call-v5',
+        zip: currentZip && isValidZip(currentZip) ? currentZip : null,
         phone_dialed: phoneTel.replace(/^tel:/, '') || null,
         phone_display: phoneDisplay || null,
         jornaya_leadid: tokens.jornaya_leadid || null,
@@ -285,6 +414,61 @@ export default function HVACCallLanderV5() {
     timersRef.current.push(t);
   };
 
+  // Persist the ZIP locally + mirror onto __sparrow_cb.tags synchronously, then
+  // push it into the live Sparrow DNI session so call attribution carries it.
+  // Mirrors HVACCallLanderZip (v3) / V4. Fire-and-forget on the push: even if
+  // the validate round trip fails the chat still reveals the CTA so the page is
+  // usable (the 3s timeout inside pushZipToSparrow caps the worst case).
+  const commitZip = (clean: string) => {
+    try {
+      window.sessionStorage.setItem(ZIP_STORAGE_KEY, clean);
+    } catch {
+      /* ignore storage errors (private mode etc.) */
+    }
+    try {
+      window.__sparrow_cb = window.__sparrow_cb || {};
+      window.__sparrow_cb.tags = {
+        ...(window.__sparrow_cb.tags || {}),
+        zip: clean,
+      };
+    } catch {
+      /* ignore */
+    }
+    pushZipToSparrow(clean).catch(() => {
+      /* ignore */
+    });
+  };
+
+  // Hydrate ZIP from sessionStorage on mount — if the visitor already validated
+  // a ZIP this session, fast-forward the chat straight to the revealed CTA.
+  useEffect(() => {
+    let stored: string | null = null;
+    try {
+      stored = window.sessionStorage.getItem(ZIP_STORAGE_KEY);
+    } catch {
+      /* ignore */
+    }
+    if (!stored || !isValidZip(stored)) return;
+
+    setSubmitted(true);
+    // Mirror onto __sparrow_cb.tags synchronously + re-push to the live session.
+    commitZip(stored);
+    // Render the resolved conversation state immediately (no typing animation).
+    setMessages((m) => [
+      ...m,
+      { id: nextId(), from: 'user', kind: 'text', text: stored as string },
+      {
+        id: nextId(),
+        from: 'bot',
+        kind: 'text',
+        text:
+          'I found an HVAC contractor in your area who is currently available, has verified reviews, and could lower the quote for your new HVAC system. Tap the button to make a free call. 👇',
+      },
+      { id: nextId(), from: 'bot', kind: 'cta' },
+    ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const clean = zip.replace(/\D/g, '').slice(0, 5);
@@ -294,6 +478,11 @@ export default function HVACCallLanderV5() {
     }
     setSubmitted(true);
     setZip('');
+
+    // Persist + push the ZIP into the live Sparrow session. Runs in parallel
+    // with the typing animation so attribution is committed well before the
+    // ~5s CTA reveal.
+    commitZip(clean);
 
     // User's ZIP bubble
     setMessages((m) => [...m, { id: nextId(), from: 'user', kind: 'text', text: clean }]);
@@ -453,9 +642,13 @@ export default function HVACCallLanderV5() {
                   </div>
                 ) : m.kind === 'cta' ? (
                   <div className="max-w-[85%] space-y-2">
-                    {/* NUMBER BUTTON — only the inner phone-number <span> carries
-                        data-sparrow-phone so Sparrow swaps just that text. The
-                        animated USA stroke wraps the button to pull attention. */}
+                    {/* NUMBER BUTTON — the visible number comes from React state
+                        (`phone`), synced from window.__sparrow_cb.result (Edge
+                        Inject) or the #sparrow-dni-shell anchor in index.html
+                        (client snippet swap). No data-sparrow-* attrs here so
+                        Sparrow never fights React for this DOM; click capture
+                        still works via the snippet's closest('a[href^="tel:"]').
+                        The animated USA stroke wraps the button to pull attention. */}
                     <div className="foc-usa-stroke--cta rounded-[20px] p-1">
                       <a
                         href={phone.tel}
@@ -466,10 +659,7 @@ export default function HVACCallLanderV5() {
                           <Phone className="h-5 w-5" />
                           Tap to Call — FREE
                         </span>
-                        <span
-                          data-sparrow-phone
-                          className="text-lg font-bold tabular-nums"
-                        >
+                        <span className="text-lg font-bold tabular-nums">
                           {phone.display}
                         </span>
                       </a>
