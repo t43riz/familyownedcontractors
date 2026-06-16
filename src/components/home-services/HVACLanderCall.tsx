@@ -250,7 +250,7 @@ export default function HVACLanderCall() {
                 Speak With a Local HVAC Pro Right Now
               </h1>
               <p className="text-sm sm:text-base text-muted-foreground mt-2">
-                AC repair, heating service, installs &amp; more — get matched with a licensed technician in minutes.
+                AC repair, heating service, installs &amp; more — get matched with a vetted technician in minutes.
               </p>
             </div>
 
@@ -287,7 +287,7 @@ export default function HVACLanderCall() {
               </div>
 
               <div className="relative border-t border-white/15 bg-black/10 px-4 py-2 text-center text-[11px] sm:text-xs font-medium tracking-wide text-white/90">
-                Licensed pros · No obligation · Calls answered 24/7
+                Vetted pros · No obligation · Calls answered 24/7
               </div>
             </a>
 
@@ -295,7 +295,7 @@ export default function HVACLanderCall() {
             <div className="grid grid-cols-3 gap-2 sm:gap-3 mt-5 sm:mt-6">
               {[
                 { Icon: CheckCircle, label: 'Fast quotes' },
-                { Icon: ShieldCheck, label: 'Licensed & insured' },
+                { Icon: ShieldCheck, label: 'Vetted & trusted' },
                 { Icon: Clock, label: 'Fast response' },
               ].map(({ Icon, label }) => (
                 <div
